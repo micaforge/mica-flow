@@ -1,0 +1,91 @@
+#!/usr/bin/env python3
+"""mica-flow-port — census a live working directory into a port worksheet.
+
+Takes a messy in-progress directory (or single doc) and extracts what's still
+open, so the remaining work can be seeded as a fresh mica-flow.
+
+Usage:
+  mica-flow-port <dir-or-file> [--out PORT.md]
+
+Classifies each line as:
+  open-box    `- [ ]` unchecked task
+  open-word   TODO / OPEN / NEXT / BLOCKED / "still open" / "not done"
+  ruling      a decision already made (quote it verbatim)
+  question    line ends in `?`
+  done-box    `- [x]` — done, not ported
+
+Writes a PORT.md worksheet grouping open items by theme, ready to become
+flow cycles. This is the mechanical census; a human (or lead agent) makes
+the verdict on grouping.
+"""
+import os
+import re
+import sys
+
+PATTERNS = [
+    ("done-box", re.compile(r"^\s*[-*]\s+\[x\]", re.I)),
+    ("open-box", re.compile(r"^\s*[-*]\s+\[ \]")),
+    ("ruling", re.compile(r"\b(RULED|DECIDED|AGREED)\b|Curtis (said|decided|ruled)", re.I)),
+    ("question", re.compile(r"\?\s*$")),
+    ("open-word", re.compile(r"\b(TODO|STILL OPEN|\bOPEN\b|NEXT UP|BLOCKED|NOT DONE|NOT STARTED|REMAINING)\b", re.I)),
+]
+
+
+def classify(line):
+    for kind, pat in PATTERNS:
+        if pat.search(line):
+            return kind
+    return None
+
+
+def main():
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    out = "PORT.md"
+    for i, a in enumerate(sys.argv):
+        if a == "--out" and i + 1 < len(sys.argv):
+            out = sys.argv[i + 1]
+    if not args or args[0] in ("-h", "--help"):
+        print(__doc__)
+        sys.exit(0 if args else 1)
+
+    src = args[0]
+    files = []
+    if os.path.isdir(src):
+        for d, _, fns in os.walk(src):
+            for f in fns:
+                if f.endswith(".md"):
+                    files.append(os.path.join(d, f))
+    elif os.path.isfile(src):
+        files = [src]
+    else:
+        print(f"not found: {src}", file=sys.stderr)
+        sys.exit(1)
+
+    buckets = {"open-box": [], "open-word": [], "ruling": [], "question": []}
+    for fp in files:
+        rel = os.path.relpath(fp, src if os.path.isdir(src) else os.path.dirname(src))
+        with open(fp, encoding="utf-8", errors="ignore") as f:
+            for n, line in enumerate(f, 1):
+                line = line.rstrip()
+                if not line.strip():
+                    continue
+                kind = classify(line)
+                if kind and kind in buckets:
+                    buckets[kind].append((rel, n, line.strip()[:120]))
+
+    with open(out, "w") as f:
+        f.write(f"# PORT worksheet — {src}\n\n")
+        f.write("Mechanical census. A human makes the verdict on grouping into flows.\n\n")
+        for kind in ("open-box", "open-word", "question", "ruling"):
+            items = buckets[kind]
+            f.write(f"## {kind} ({len(items)})\n\n")
+            for rel, n, line in items:
+                f.write(f"- `{rel}:{n}` — {line}\n")
+            f.write("\n")
+
+    total = sum(len(v) for v in buckets.values())
+    print(f"port worksheet: {out} ({total} items)")
+
+
+if __name__ == "__main__":
+    main()
