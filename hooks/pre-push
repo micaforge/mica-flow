@@ -1,0 +1,12 @@
+#!/bin/bash
+# pre-push: audit for secrets and overly-specific paths before pushing.
+# Installed by mica-scaffold. Bypass with: git push --no-verify
+REPO_DIR=$(git rev-parse --show-toplevel)
+if [ -x "$HOME/workspace/bin/mica-audit" ]; then
+  "$HOME/workspace/bin/mica-audit" "$REPO_DIR" --strict
+  if [ $? -ne 0 ]; then
+    echo ""
+    echo "Push blocked: audit found issues. Fix them or use --no-verify to override."
+    exit 1
+  fi
+fi
