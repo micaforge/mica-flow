@@ -40,6 +40,16 @@ agent completes the *next* cycle's BRIEF before finishing.
 - Budget per cycle: 30 min / 60 tool calls.
 - Keep flows lean; a cycle that only shuffles paper is a bug.
 
+## Decision checkpoints
+
+When a wave hits a fork only the user can resolve (two defensible
+designs, a wording choice, a scope question), don't guess — write it as
+a **decision checkpoint** and relay it as a tappable card. One question,
+2–4 options each with a one-line trade-off, unanswered stays OPEN
+(never invented, never defaulted). The user taps once; the decision
+lands in `_run/checkpoints.md` and unblocks the next brief. Full
+procedure: `workflows/01-decision-checkpoints.md`.
+
 ## Templates
 
 Start from `templates/mica-flow-template/` — includes `AGENT.md`

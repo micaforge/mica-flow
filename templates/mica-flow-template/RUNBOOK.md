@@ -22,6 +22,20 @@ Distilled from soma-rings' lead procedure, trimmed for small rings.
 2. Spot-check 2–3 claims against cited files/lines.
 3. If deliverables are missing or wrong, send the agent back — do not advance.
 
+## Decision checkpoints
+
+When a wave hits a fork only the user can resolve (two defensible
+designs, a wording choice, a scope question): write it as a **decision
+checkpoint** — one question, 2–4 options each with a one-line trade-off,
+visual reference where the choice is visual — in the cycle's
+`_run/checkpoints.md` as **OPEN**. Relay it to the user as a tappable
+card (`muse.create_options`): index card first when several are open,
+then one card per checkpoint, each option a complete reply. The user
+taps; record the decision with date, then resolve any brief items marked
+"pending CPN" to the decision. Never invent the user's answer; an
+unanswered checkpoint stays open, not defaulted. Full procedure:
+`workflows/01-decision-checkpoints.md`.
+
 ## Gates
 
 1. Check the cycle's gates table in `cycle.md` — every gate must pass.
