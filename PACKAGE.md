@@ -10,6 +10,10 @@ pick it up and run.
 <package>/
 ├── SKILL.md            # entry point: what it is, when to use, quick start
 ├── bin/                # executables (on PATH when installed)
+├── caps/               # mica CLI caps (`mica <family> <cap>`); the live
+│                       #   implementation of the commands SKILL.md documents.
+│                       #   Installed as a symlink into the local caps dir,
+│                       #   so the repo stays the source of truth.
 ├── tools/              # libraries, helpers, non-executable support code
 ├── workflows/          # step-by-step procedures (numbered, e.g. 01-setup.md)
 ├── references/         # deep docs, tutorials, research, troubleshooting
