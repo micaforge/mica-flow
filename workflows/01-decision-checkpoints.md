@@ -1,5 +1,9 @@
 # Workflow 01 — Decision checkpoints
 
+> **Standard example.** This workflow is the reference implementation
+> every future micaforge toolkit copies for user-facing forks. When your
+> tool needs a human decision mid-run, do it exactly like this.
+
 **Use when:** a flow wave hits a genuine fork — two defensible designs, a
 wording choice, a scope question only the user can answer. Not for
 something the lead can just decide (see "when the best choice is

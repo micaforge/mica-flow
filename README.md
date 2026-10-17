@@ -72,10 +72,13 @@ mica-flow-status my-project
 mica-flow/
 ├── bin/            # mica-flow, mica-flow-status, mica-flow-linkcheck, mica-flow-port
 ├── templates/      # flow template (AGENT.md, RUNBOOK.md, cycle/BRIEF skeletons)
+│                  # + toolkit-seed/ (worked example: the 12 load-bearing
+│                  #   decisions, anatomy map, adapt recipe for new tools)
 ├── workflows/      # step-by-step procedures (01-decision-checkpoints.md)
 ├── hooks/          # lifecycle hooks
 ├── assets/         # logo
 ├── SKILL.md        # agent entry point
+├── PACKAGE.md      # package layout contract (what goes where)
 └── README.md
 ```
 
