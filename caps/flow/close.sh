@@ -89,11 +89,17 @@ if [[ -n "$CYCLE" ]]; then
       [[ "$line" =~ ^##[[:space:]]+Deliverables ]] && { in_deliv=1; continue; }
       [[ "$line" =~ ^##[[:space:]] ]] && in_deliv=0
       [[ $in_deliv -eq 0 ]] && continue
+      # only item-head lines; description after the first em-dash may name
+      # files that are subjects, not deliverables
+      [[ "$line" =~ ^([0-9]+\.|[[:space:]]*[-*])[[:space:]] ]] || continue
+      item="${line%%—*}"
       while IFS= read -r fn; do
         [[ -z "$fn" ]] && continue
-        [[ "$fn" =~ ^a[0-9][0-9]-.*/BRIEF\.md$ ]] && continue  # C5 handles next-brief
-        [[ -f "$rundir/$fn" ]] || fail "C4: $cn deliverable missing from _run/: $fn"
-      done < <(grep -o '`[^`]*`' <<< "$line" | tr -d '`')
+        nfn="${fn#../}"  # brief may path the next brief relative to the cycle dir, not _run/
+        [[ "$nfn" =~ ^a[0-9][0-9]-.*/BRIEF\.md$ ]] && continue  # C5 handles next-brief
+        shopt -s nullglob; _m=("$rundir"/$fn); shopt -u nullglob
+        [[ ${#_m[@]} -gt 0 ]] || fail "C4: $cn deliverable missing from _run/: $fn"
+      done < <(grep -o '`[^`]*`' <<< "$item" | tr -d '`')
     done < "$bm"
   else
     fail "C4: $cn missing BRIEF.md"
@@ -161,16 +167,20 @@ for cm in "${CYCLES[@]}"; do
     [[ "$line" =~ ^##[[:space:]]+Deliverables ]] && { in_deliv=1; continue; }
     [[ "$line" =~ ^##[[:space:]] ]] && in_deliv=0
     [[ $in_deliv -eq 0 ]] && continue
+    [[ "$line" =~ ^([0-9]+\.|[[:space:]]*[-*])[[:space:]] ]] || continue
+    item="${line%%—*}"
     while IFS= read -r fn; do
       [[ -z "$fn" ]] && continue
-      if [[ "$fn" =~ ^a[0-9][0-9]-.*/BRIEF\.md$ ]]; then
-        nbn="${fn%%/*}"
+      nfn="${fn#../}"  # brief may path the next brief relative to the cycle dir, not _run/
+      if [[ "$nfn" =~ ^a[0-9][0-9]-.*/BRIEF\.md$ ]]; then
+        nbn="${nfn%%/*}"
         nc=$(find "$FD" -maxdepth 3 -type d -name "$nbn" | head -1)
         { [[ -n "$nc" && -f "$nc/BRIEF.md" ]]; } || fail "V4: $cn next brief missing: $fn"
       else
-        [[ -f "$rundir/$fn" ]] || fail "V4: $cn deliverable missing from _run/: $fn"
+        shopt -s nullglob; _m=("$rundir"/$fn); shopt -u nullglob
+        [[ ${#_m[@]} -gt 0 ]] || fail "V4: $cn deliverable missing from _run/: $fn"
       fi
-    done < <(grep -o '`[^`]*`' <<< "$line" | tr -d '`')
+    done < <(grep -o '`[^`]*`' <<< "$item" | tr -d '`')
   done < "$bm"
 done
 

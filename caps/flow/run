@@ -15,7 +15,7 @@ Example:
       --goal "Rebuild pi-web-ui with native UI + privileged proxy"
 
 Creates ~/workspace/flows/<flow-name>/ with:
-  AGENT.md, RUNBOOK.md, a00-scaffold/AGENT.md,
+  AGENT.md, RUNBOOK.md, ROUTER.md,
   a01-<c1>/{cycle.md,BRIEF.md,_run/}, a02-.../{cycle.md,BRIEF.md,_run/}, ...
 """
 import os
@@ -52,7 +52,7 @@ def main():
         sys.exit(1)
 
     shutil.copytree(TEMPLATE, dest)
-    stage = os.path.join(dest, "a00-scaffold")
+    stage = dest
     today = date.today().isoformat()
 
     # a01 gets the full templates; a02+ get outlines
@@ -155,7 +155,7 @@ def main():
             "CYCLE3": f"a03-{cycles[2]}" if len(cycles) > 2 else "",
         }))
 
-    # Fill stage AGENT.md dispatch steps
+    # Fill ROUTER.md dispatch steps
     steps = []
     for i, cycle in enumerate(cycles):
         cid = f"a{i+1:02d}-{cycle}"
@@ -163,9 +163,9 @@ def main():
         steps.append(f"   Verify gates in `{cid}/cycle.md` pass and `_run/` is complete.")
         if i < len(cycles) - 1:
             steps.append(f"   Next BRIEF (`a{i+2:02d}-{cycles[i+1]}/BRIEF.md`) must be completed, not outlined.")
-    with open(os.path.join(stage, "AGENT.md")) as f:
+    with open(os.path.join(dest, "ROUTER.md")) as f:
         text = f.read()
-    with open(os.path.join(stage, "AGENT.md"), "w") as f:
+    with open(os.path.join(dest, "ROUTER.md"), "w") as f:
         f.write(fill(text, {"DISPATCH_STEPS": "\n".join(steps)}))
 
     print(f"scaffolded flow: {dest}")
