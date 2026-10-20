@@ -24,7 +24,7 @@ import sys
 from datetime import date
 
 TEMPLATE = os.path.expanduser(
-    "~/workspace/micaforge/repos/micaforge-tools/templates/mica-flow-template")
+    "~/workspace/projects/micaforge/repos/micaforge-tools/templates/mica-flow-template")
 FLOW_BASE = os.path.expanduser("~/workspace/flows")
 
 
