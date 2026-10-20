@@ -20,6 +20,7 @@ agent completes the *next* cycle's BRIEF before finishing.
 | `mica flow status <name>` | per-cycle status, gates, `_run/` deliverables |
 | `mica flow complete` | cross-flow completion report (all flows, % done) |
 | `mica flow close <name> --verify` | verify all cycles done with evidence (gate before archiving) |
+| `mica flow close <name> --cycle <c>` | per-wave close gate C1–C5 (run after every wave; next wave waits for PASS) |
 | `mica-flow` | legacy shim for the above |
 
 ## The cycle loop
@@ -28,9 +29,12 @@ agent completes the *next* cycle's BRIEF before finishing.
    done criteria, stop conditions, budget).
 2. **Agent** executes the brief, writes deliverables to `_run/`,
    completes the *next* cycle's BRIEF.
-3. **Lead** verifies gates in `cycle.md`, spot-checks 2–3 claims.
-4. Repeat. Final cycle writes the flow summary; `mica flow close`
-   verifies everything before archiving.
+3. **Closer** (1–2 agents, never the builder) runs the close gate:
+   `mica flow close <name> --cycle <c>`. BLOCKED = stop, fix, or escalate.
+4. **Lead** verifies gates in `cycle.md`, spot-checks 2–3 claims.
+5. Repeat — never dispatch wave N+1 until wave N passes the close gate.
+   Final cycle writes the flow summary; `mica flow close` verifies
+   everything before archiving.
 
 ## Conventions
 
@@ -39,6 +43,16 @@ agent completes the *next* cycle's BRIEF before finishing.
   budget → stop and report.
 - Budget per cycle: 30 min / 60 tool calls.
 - Keep flows lean; a cycle that only shuffles paper is a bug.
+
+## Decision checkpoints
+
+When a wave hits a fork only the user can resolve (two defensible
+designs, a wording choice, a scope question), don't guess — write it as
+a **decision checkpoint** and relay it as a tappable card. One question,
+2–4 options each with a one-line trade-off, unanswered stays OPEN
+(never invented, never defaulted). The user taps once; the decision
+lands in `_run/checkpoints.md` and unblocks the next brief. Full
+procedure: `workflows/01-decision-checkpoints.md`.
 
 ## Templates
 

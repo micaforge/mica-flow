@@ -1,0 +1,138 @@
+#!/usr/bin/env python3
+"""mica-scaffold — scaffold a new micaforge repo from the template.
+
+Usage:
+  mica-scaffold <repo-slug> [--type agent|project] [--title "Name"] [--tagline "..."]
+
+Creates the folder, fills in the README template, inits git, and (optionally)
+creates the private GitHub repo.
+
+Types:
+  agent    — an agent skill/package (SKILL.md, bin/, references/)
+  project  — a standalone project (bin/, references/, assets/)
+"""
+import argparse
+import os
+import re
+import shutil
+import subprocess
+import sys
+
+TEMPLATE_DIR = os.path.expanduser("~/workspace/micaforge/repos/micaforge-template")
+REPOS_DIR = os.path.expanduser("~/workspace/micaforge/repos")
+
+AGENT_EXTRA = {
+    "SKILL.md": "# {title}\n\n{{tagline}}\n\n## Use when\n\n- \n\n## Quick start\n\n```bash\n```\n",
+}
+
+def fill(template: str, ctx: dict) -> str:
+    for k, v in ctx.items():
+        template = template.replace("{{" + k + "}}", v)
+    # Warn on unfilled placeholders
+    leftovers = set(re.findall(r"\{\{(\w+)\}\}", template))
+    if leftovers:
+        print(f"  note: unfilled placeholders: {sorted(leftovers)}", file=sys.stderr)
+    return template
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("slug", help="repo slug, e.g. my-cool-tool")
+    ap.add_argument("--type", choices=["agent", "project"], default="project")
+    ap.add_argument("--title", default=None)
+    ap.add_argument("--tagline", default="A Micaforge project.")
+    ap.add_argument("--description", default="TODO: one-paragraph description.")
+    ap.add_argument("--no-github", action="store_true", help="skip gh repo creation")
+    args = ap.parse_args()
+
+    title = args.title or args.slug.replace("-", " ").title()
+    dest = os.path.join(REPOS_DIR, args.slug)
+    if os.path.exists(dest):
+        print(f"exists: {dest}", file=sys.stderr)
+        sys.exit(1)
+
+    ctx = {
+        "PROJECT_NAME": title,
+        "REPO_SLUG": args.slug,
+        "TAGLINE": args.tagline,
+        "DESCRIPTION": args.description,
+        "VALUE_PROP_1": "TODO",
+        "VALUE_PROP_2": "TODO",
+        "VALUE_PROP_3": "TODO",
+        "INSTALL_CMD": "# TODO: install command",
+        "RUN_CMD": "# TODO: run command",
+        "USAGE_EXAMPLE": "# TODO: usage example",
+        "FEATURE_1": "TODO",
+        "FEATURE_1_DESC": "TODO",
+        "FEATURE_2": "TODO",
+        "FEATURE_2_DESC": "TODO",
+    }
+
+    print(f"scaffolding {args.type}: {dest}")
+    shutil.copytree(TEMPLATE_DIR, dest, ignore=shutil.ignore_patterns(".git"))
+
+    # Fill README
+    tmpl = os.path.join(dest, "README.template.md")
+    with open(tmpl) as f:
+        readme = fill(f.read(), ctx)
+    os.remove(tmpl)
+    with open(os.path.join(dest, "README.md"), "w") as f:
+        f.write(readme)
+
+    # Agent type gets SKILL.md + package dirs
+    if args.type == "agent":
+        with open(os.path.join(dest, "SKILL.md"), "w") as f:
+            f.write(AGENT_EXTRA["SKILL.md"].format(title=title, tagline=args.tagline))
+        for d in ("workflows", "tools"):
+            os.makedirs(os.path.join(dest, d), exist_ok=True)
+
+    # MIT license
+    with open(os.path.join(dest, "LICENSE"), "w") as f:
+        f.write("MIT License\n\nCopyright (c) 2026 Micaforge\n\n"
+                "Permission is hereby granted, free of charge, to any person obtaining a copy\n"
+                "of this software and associated documentation files (the \"Software\"), to deal\n"
+                "in the Software without restriction, including without limitation the rights\n"
+                "to use, copy, modify, merge, publish, distribute, sublicense, and/or sell\n"
+                "copies of the Software, and to permit persons to whom the Software is\n"
+                "furnished to do so, subject to the following conditions:\n\n"
+                "The above copyright notice and this permission notice shall be included in all\n"
+                "copies or substantial portions of the Software.\n\n"
+                "THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n"
+                "IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n"
+                "FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\n"
+                "AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n"
+                "LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\n"
+                "OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\n"
+                "SOFTWARE.\n")
+
+    # Git init + commit
+    subprocess.run(["git", "init", "-q"], cwd=dest, check=True)
+    # Install pre-push audit hook from template
+    hook_src = os.path.join(TEMPLATE_DIR, "hooks", "pre-push")
+    hook_dst = os.path.join(dest, ".git", "hooks", "pre-push")
+    if os.path.exists(hook_src):
+        shutil.copy2(hook_src, hook_dst)
+        os.chmod(hook_dst, 0o755)
+        print("  installed pre-push audit hook")
+    subprocess.run(["git", "add", "-A"], cwd=dest, check=True)
+    subprocess.run(["git", "-c", "user.name=micaforge-ai",
+                    "-c", "user.email=micaforge@gravicity.ai",
+                    "commit", "-qm", f"Initial scaffold from micaforge-template ({args.type})"],
+                   cwd=dest, check=True)
+    # main branch
+    subprocess.run(["git", "branch", "-M", "main"], cwd=dest, check=True)
+
+    if not args.no_github:
+        print("creating private GitHub repo...")
+        r = subprocess.run(["gh", "repo", "create", f"micaforge/{args.slug}",
+                            "--private", "--source", dest, "--push"],
+                           capture_output=True, text=True)
+        if r.returncode == 0:
+            print(f"  {r.stdout.strip()}")
+        else:
+            print(f"  gh failed: {r.stderr.strip()}", file=sys.stderr)
+            print("  push manually later", file=sys.stderr)
+
+    print(f"done: {dest}")
+
+if __name__ == "__main__":
+    main()

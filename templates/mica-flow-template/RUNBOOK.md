@@ -22,6 +22,36 @@ Distilled from soma-rings' lead procedure, trimmed for small rings.
 2. Spot-check 2–3 claims against cited files/lines.
 3. If deliverables are missing or wrong, send the agent back — do not advance.
 
+## Close the wave (the closer role)
+
+Every wave names 1–2 **closers** — not the builder. The closer's only job
+is the scaffold + runbook close steps; the builder never closes its own
+wave. This is what keeps a multi-wave flow from drifting into "the lead
+just implements it" by wave three.
+
+1. Closer runs the per-wave gate: `mica flow close <flow> --cycle <name>`
+   (C1 cycle done · C2 `_run/` holds deliverables · C3 no bare TODO gates ·
+   C4 brief deliverables all present · C5 next cycle's BRIEF exists, ready,
+   no TODOs). Exit 1 = BLOCKED: fix or escalate, do not advance.
+2. **Never dispatch wave N+1 until wave N passes the close gate.**
+   A failed close is a stop, not a suggestion.
+3. Closer records any decision checkpoints the wave produced
+   (`_run/checkpoints.md`, OPEN until the user answers) and relays them.
+
+## Decision checkpoints
+
+When a wave hits a fork only the user can resolve (two defensible
+designs, a wording choice, a scope question): write it as a **decision
+checkpoint** — one question, 2–4 options each with a one-line trade-off,
+visual reference where the choice is visual — in the cycle's
+`_run/checkpoints.md` as **OPEN**. Relay it to the user as a tappable
+card (`muse.create_options`): index card first when several are open,
+then one card per checkpoint, each option a complete reply. The user
+taps; record the decision with date, then resolve any brief items marked
+"pending CPN" to the decision. Never invent the user's answer; an
+unanswered checkpoint stays open, not defaulted. Full procedure:
+`workflows/01-decision-checkpoints.md`.
+
 ## Gates
 
 1. Check the cycle's gates table in `cycle.md` — every gate must pass.

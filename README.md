@@ -26,6 +26,7 @@ mica-flow is how an AI agent runs multi-step work without losing the thread. Sca
 - **Briefs, not vibes.** Every cycle starts with a written task: files in scope, done criteria, stop conditions, budget. No "figure it out" delegation.
 - **Gates with evidence.** Each cycle declares what "done" means and how to verify it. A gate isn't checked until the evidence exists.
 - **Run records.** Every cycle's work lands in `_run/` — summaries, measurements, deliverables. The next agent reads what actually happened, not what was planned.
+- **Decision checkpoints.** When a wave hits a fork only the user can resolve, the lead writes it as a checkpoint (one question, 2–4 options, one-line trade-offs) and relays it as a tappable card in chat. One tap decides; the answer lands back in `_run/checkpoints.md` and unblocks the next brief. The lead never invents the user's answer.
 
 ## 🚀 Quick start
 
@@ -71,9 +72,13 @@ mica-flow-status my-project
 mica-flow/
 ├── bin/            # mica-flow, mica-flow-status, mica-flow-linkcheck, mica-flow-port
 ├── templates/      # flow template (AGENT.md, RUNBOOK.md, cycle/BRIEF skeletons)
+│                  # + toolkit-seed/ (worked example: the 12 load-bearing
+│                  #   decisions, anatomy map, adapt recipe for new tools)
+├── workflows/      # step-by-step procedures (01-decision-checkpoints.md)
 ├── hooks/          # lifecycle hooks
 ├── assets/         # logo
 ├── SKILL.md        # agent entry point
+├── PACKAGE.md      # package layout contract (what goes where)
 └── README.md
 ```
 

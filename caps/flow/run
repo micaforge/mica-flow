@@ -1,0 +1,177 @@
+#!/usr/bin/env python3
+"""mica-flow — scaffold a new multi-cycle flow from the template.
+
+Evolved from the ring pattern, informed by meetsoma/soma-rings:
+- cycle.md as the one durable record per cycle (frontmatter + gates table)
+- _run/ for deliverables + the next-BRIEF completion chain
+- adversary seat for design cycles, RUNBOOK lead procedure
+- lean: no ceremony tax on small flows
+
+Usage:
+  mica-flow <flow-name> "<cycle1>,<cycle2>,<cycle3>" [--goal "..."]
+
+Example:
+  mica-flow pi-artifact "privileged-handlers,native-ui,wireup-audit" \\
+      --goal "Rebuild pi-web-ui with native UI + privileged proxy"
+
+Creates ~/workspace/flows/<flow-name>/ with:
+  AGENT.md, RUNBOOK.md, ROUTER.md,
+  a01-<c1>/{cycle.md,BRIEF.md,_run/}, a02-.../{cycle.md,BRIEF.md,_run/}, ...
+"""
+import os
+import shutil
+import sys
+from datetime import date
+
+TEMPLATE = os.path.expanduser(
+    "~/workspace/micaforge/repos/micaforge-tools/templates/mica-flow-template")
+FLOW_BASE = os.path.expanduser("~/workspace/flows")
+
+
+def fill(text, ctx):
+    for k, v in ctx.items():
+        text = text.replace("{{" + k + "}}", v)
+    return text
+
+
+def main():
+    if len(sys.argv) < 3 or sys.argv[1] in ("-h", "--help"):
+        print(__doc__)
+        sys.exit(0 if len(sys.argv) >= 2 else 1)
+
+    flow_name = sys.argv[1]
+    cycles = [c.strip() for c in sys.argv[2].split(",")]
+    goal = ""
+    for i, a in enumerate(sys.argv):
+        if a == "--goal" and i + 1 < len(sys.argv):
+            goal = sys.argv[i + 1]
+
+    dest = os.path.join(FLOW_BASE, flow_name)
+    if os.path.exists(dest):
+        print(f"flow already exists: {dest}", file=sys.stderr)
+        sys.exit(1)
+
+    shutil.copytree(TEMPLATE, dest)
+    stage = dest
+    today = date.today().isoformat()
+
+    # a01 gets the full templates; a02+ get outlines
+    shutil.move(os.path.join(stage, "a01-cycle-one"),
+                os.path.join(stage, f"a01-{cycles[0]}"))
+
+    with open(os.path.join(stage, "BRIEF.outline.md")) as f:
+        brief_outline = f.read()
+    with open(os.path.join(stage, "cycle.outline.md")) as f:
+        cycle_outline = f.read()
+    os.remove(os.path.join(stage, "BRIEF.outline.md"))
+    os.remove(os.path.join(stage, "cycle.outline.md"))
+
+    for i, cycle in enumerate(cycles[1:], start=2):
+        cid = f"a{i:02d}-{cycle}"
+        cdir = os.path.join(stage, cid)
+        os.makedirs(os.path.join(cdir, "_run"))
+        prev = f"a{i-1:02d}-{cycles[i-2]}"
+        nxt = f"a{i+1:02d}-{cycles[i]}" if i < len(cycles) else ""
+        bctx = {
+            "CYCLE_ID": cid,
+            "CYCLE_TITLE": cycle.replace("-", " ").title(),
+            "CYCLE_TASK_OUTLINE": "TODO",
+            "BUILDER_KIND_OUTLINE": "TODO: what builder kind will this cycle need?",
+            "CAPABILITY_APPROVALS_OUTLINE": "TODO: what privileged capabilities, if any?",
+            "NEXT_BRIEF_OUTLINE": f"- Completed `{nxt}/BRIEF.md`" if nxt else "",
+        }
+        cctx = {
+            "FLOW_NAME": flow_name,
+            "CYCLE_ID": cid,
+            "CYCLE_TITLE": cycle.replace("-", " ").title(),
+            "DEPENDS_ON": prev,
+            "CYCLE_GOAL_OUTLINE": "TODO",
+        }
+        with open(os.path.join(cdir, "BRIEF.md"), "w") as f:
+            f.write(fill(brief_outline, bctx))
+        with open(os.path.join(cdir, "cycle.md"), "w") as f:
+            f.write(fill(cycle_outline, cctx))
+
+    # Fill a01's full templates
+    c1dir = os.path.join(stage, f"a01-{cycles[0]}")
+    nxt = f"a02-{cycles[1]}" if len(cycles) > 1 else ""
+    for fname, extra in (("cycle.md", {}), ("BRIEF.md", {})):
+        p = os.path.join(c1dir, fname)
+        with open(p) as f:
+            text = f.read()
+        ctx = {
+            "FLOW_NAME": flow_name,
+            "CYCLE_ID": f"a01-{cycles[0]}",
+            "CYCLE_TITLE": cycles[0].replace("-", " ").title(),
+            "DEPENDS_ON": "",
+            "DATE": today,
+            "CYCLE_GOAL": "TODO",
+            "CYCLE_METHOD": "TODO",
+            "GATE1": "TODO", "VERIFY1": "TODO", "PASS1": "TODO",
+            "LIVE_DATA_VERIFY": "TODO: how to verify against real (not mocked) data",
+            "LIVE_DATA_PASS": "TODO",
+            "CYCLE_TASK": "TODO: full task for the first cycle agent",
+            "BUILDER_KIND": "TODO: e.g. 'fullstack typescript builder' if using artifact.edit",
+            "CAPABILITY_APPROVALS": "TODO: list privileged capabilities or 'none'",
+            "NEXT_BRIEF_INSTRUCTION": (
+                f"2. **Completed `{nxt}/BRIEF.md`** — fill the outline fully "
+                f"from your findings. Zero guesswork for the next agent."
+            ) if nxt else "",
+        }
+        ctx.update(extra)
+        with open(p, "w") as f:
+            f.write(fill(text, ctx))
+
+    # Fill ring AGENT.md
+    cycle_list = "\n".join(f"{i+1}. `a{i+1:02d}-{c}` — TODO" for i, c in enumerate(cycles))
+    state_list = "\n".join(f"- [ ] a{i+1:02d}-{c}:" for i, c in enumerate(cycles))
+    with open(os.path.join(dest, "AGENT.md")) as f:
+        text = f.read()
+    # Replace the placeholder state checklist
+    lines = text.split("\n")
+    out, in_state = [], False
+    for line in lines:
+        if line.strip() == "## State":
+            in_state = True
+            out.append(line)
+            out.append("")
+            out.append(state_list)
+            continue
+        if in_state and line.startswith("- [ ]"):
+            continue
+        if in_state and not line.startswith("- [ ]") and line.strip():
+            in_state = False
+        if not in_state:
+            out.append(line)
+    text = "\n".join(out)
+    with open(os.path.join(dest, "AGENT.md"), "w") as f:
+        f.write(fill(text, {
+            "FLOW_NAME": flow_name,
+            "FLOW_GOAL": goal or "TODO: flow goal",
+            "CYCLE_LIST": cycle_list,
+            "DATE": today,
+            "CYCLE1": f"a01-{cycles[0]}",
+            "CYCLE2": f"a02-{cycles[1]}" if len(cycles) > 1 else "",
+            "CYCLE3": f"a03-{cycles[2]}" if len(cycles) > 2 else "",
+        }))
+
+    # Fill ROUTER.md dispatch steps
+    steps = []
+    for i, cycle in enumerate(cycles):
+        cid = f"a{i+1:02d}-{cycle}"
+        steps.append(f"{i+1}. Read `{cid}/BRIEF.md` + `{cid}/cycle.md`, spawn the agent.")
+        steps.append(f"   Verify gates in `{cid}/cycle.md` pass and `_run/` is complete.")
+        if i < len(cycles) - 1:
+            steps.append(f"   Next BRIEF (`a{i+2:02d}-{cycles[i+1]}/BRIEF.md`) must be completed, not outlined.")
+    with open(os.path.join(dest, "ROUTER.md")) as f:
+        text = f.read()
+    with open(os.path.join(dest, "ROUTER.md"), "w") as f:
+        f.write(fill(text, {"DISPATCH_STEPS": "\n".join(steps)}))
+
+    print(f"scaffolded flow: {dest}")
+    print(f"  cycles: {', '.join(cycles)}")
+    print(f"  next: fill in a01's cycle.md goal/gates and BRIEF.md task")
+
+
+if __name__ == "__main__":
+    main()

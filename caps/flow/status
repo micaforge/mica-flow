@@ -1,0 +1,88 @@
+#!/usr/bin/env python3
+"""mica-flow-status — show the state of a mica-flow.
+
+Usage:
+  mica-flow-status <flow-name> [--flows-dir ~/workspace/flows]
+
+Prints each cycle's status (from cycle.md frontmatter), gates checklist,
+_run/ deliverables, and whether the next BRIEF is ready.
+"""
+import os
+import re
+import sys
+
+FLOW_BASE = os.path.expanduser("~/workspace/flows")
+
+
+def frontmatter(path):
+    """Extract YAML frontmatter as dict (simple key: value only)."""
+    try:
+        with open(path, encoding="utf-8", errors="ignore") as f:
+            text = f.read()
+    except OSError:
+        return {}
+    m = re.match(r"^---\n(.*?)\n---", text, re.S)
+    if not m:
+        return {}
+    out = {}
+    for line in m.group(1).split("\n"):
+        if ":" in line:
+            k, v = line.split(":", 1)
+            out[k.strip()] = v.strip().strip('"')
+    return out
+
+
+def main():
+    if len(sys.argv) < 2 or sys.argv[1] in ("-h", "--help"):
+        print(__doc__)
+        sys.exit(0 if len(sys.argv) >= 2 else 1)
+
+    flow = sys.argv[1]
+    base = os.path.join(FLOW_BASE, flow)
+    if not os.path.isdir(base):
+        print(f"no such flow: {base}", file=sys.stderr)
+        sys.exit(1)
+
+    stage = os.path.join(base, "a00-scaffold")
+    cycles = sorted(d for d in os.listdir(stage)
+                    if os.path.isdir(os.path.join(stage, d)) and re.match(r"a\d\d-", d))
+
+    print(f"flow: {flow}")
+    fm = frontmatter(os.path.join(base, "AGENT.md"))
+    if fm.get("status"):
+        print(f"status: {fm['status']}")
+    print()
+
+    for c in cycles:
+        cdir = os.path.join(stage, c)
+        cyc = frontmatter(os.path.join(cdir, "cycle.md"))
+        brf = frontmatter(os.path.join(cdir, "BRIEF.md"))
+        runs = os.path.join(cdir, "_run")
+        deliverables = sorted(os.listdir(runs)) if os.path.isdir(runs) else []
+
+        status = cyc.get("status", "?")
+        icon = {"done": "✓", "active": "→", "blocked": "✗"}.get(status, "○")
+        print(f"  {icon} {c} [{status}]")
+
+        # Gates
+        try:
+            with open(os.path.join(cdir, "cycle.md"), encoding="utf-8", errors="ignore") as f:
+                gates = re.findall(r"^\| G\d+ \| (.+?) \|", f.read(), re.M)
+            for g in gates[:4]:
+                print(f"      gate: {g[:60]}")
+        except OSError:
+            pass
+
+        # Deliverables
+        if deliverables:
+            print(f"      _run/: {', '.join(deliverables)}")
+        else:
+            print(f"      _run/: (empty)")
+
+        # Next brief readiness
+        if brf.get("status") == "outline":
+            print(f"      BRIEF: outline (previous cycle must complete it)")
+
+
+if __name__ == "__main__":
+    main()

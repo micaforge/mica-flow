@@ -1,0 +1,53 @@
+#!/usr/bin/env python3
+"""mica-flow-linkcheck — count broken relative markdown links in a flow.
+
+Usage:
+  mica-flow-linkcheck <flow-name>
+
+Checks `](rel/path)` links in every .md under the flow (skips _run/).
+Prints broken count; --list shows each. Exit 0 always (it measures).
+"""
+import os
+import re
+import sys
+
+FLOW_BASE = os.path.expanduser("~/workspace/flows")
+LINK = re.compile(r"\]\(([^)\s#]+)(?:#[^)]*)?\)")
+
+
+def main():
+    show = "--list" in sys.argv
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    if not args or args[0] in ("-h", "--help"):
+        print(__doc__)
+        sys.exit(0 if args else 1)
+
+    root = os.path.join(FLOW_BASE, args[0])
+    if not os.path.isdir(root):
+        print(f"no such flow: {root}", file=sys.stderr)
+        sys.exit(1)
+
+    total = bad = 0
+    for d, dns, fns in os.walk(root):
+        dns[:] = [x for x in dns if x != "_run"]
+        for f in fns:
+            if not f.endswith(".md"):
+                continue
+            p = os.path.join(d, f)
+            text = open(p, encoding="utf-8", errors="ignore").read()
+            for m in LINK.finditer(text):
+                tok = m.group(1)
+                if re.match(r"^[a-z]+:", tok) or tok.startswith(("/", "~")):
+                    continue
+                total += 1
+                target = os.path.normpath(os.path.join(d, tok))
+                if not os.path.exists(target):
+                    bad += 1
+                    if show:
+                        print(f"  BROKEN {p}: {tok}")
+
+    print(f"{args[0]} links={total} broken={bad}")
+
+
+if __name__ == "__main__":
+    main()
