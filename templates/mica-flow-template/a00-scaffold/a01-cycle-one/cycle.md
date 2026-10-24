@@ -29,6 +29,16 @@ depends_on: [{{DEPENDS_ON}}]
 
 <!-- agent fills this during the cycle -->
 
+## Claims
+
+<!-- present-tense claims this cycle's record makes; one row each.
+     Rungs: 1 live behaviour · 2 artifacts on disk · 3 records only.
+     A claim past its re-probe date is re-probed or downgraded,
+     never silently carried. See RUNBOOK "Claims discipline". -->
+
+| claim | rung | evidence | date | re-probe due |
+|-------|------|----------|------|--------------|
+
 ## Decisions
 
 <!-- proposals and rulings; nothing moves without lead sign-off -->
