@@ -71,6 +71,48 @@ just implements it" by wave three.
 4. Closer records any decision checkpoints the wave produced
    (`_run/checkpoints.md`, OPEN until the user answers) and relays them.
 
+**The flow's final wave is a reflection wave.** When the last wave
+closes, the closer also runs it — two voices, triage, verified
+mirrors. Method: `templates/orchestrated-flow/PATTERN.md`,
+"The reflection wave".
+
+## Harvesting patterns into the templates
+
+When a flow proves a pattern the templates don't carry (or carry
+wrong), the fix lands as a PR into this repo — one PR per pattern,
+branch `steward/<slug>`, provenance line naming the proving
+flow(s). The gate reviews; pattern-level changes (new template,
+retired template, changed gate semantics) go to the user as a tap.
+
+The harvest runs under six rules (template-steward arc 1,
+2026-10-24 — each one a lesson that arc paid for):
+
+1. **Committed-identity preflight.** Before grading or editing,
+   record `git status` + HEAD of the template repo in the
+   deliverable. Grade and edit against `origin/main`; anything
+   that exists only in a working tree is UNCOMMITTED and marked
+   as such — never graded or cited as set content.
+2. **Placement.** A new file inside an existing template family
+   is the seat's call. A new family is flagged to the gate
+   *before* the PR opens — never landed as a default.
+3. **Disposition check.** Before the harvest brief is written,
+   every inventory note (stale, contradictory, missing) maps to
+   a grading row, a PR, or an explicit "noted, not harvested"
+   line. Unmapped notes drop silently; mapped ones can't.
+4. **Proof counts travel.** A candidate's proof count rides with
+   it: inventory → brief ("Proven: <flow>, n=<count>") → the PR's
+   provenance line repeats it. The gate sees n=1 without
+   cross-reading the survey.
+5. **Parallel seats, one record shape.** Multi-PR harvests split
+   across seats; every seat appends to one shared table with
+   fixed columns: `branch | PR | files | scope | provenance`.
+   The merged record is a concatenation, not a re-derivation.
+6. **Worktree end-state, named in the brief.** One worktree per
+   PR branch, off `origin/main` — never edit the repo's primary
+   working tree. The brief states when and by whom worktrees are
+   removed (e.g. "leave in place until the gate's merge report,
+   then the seat removes them"). No orphan worktrees by default.
+
 The C-checks are the operative form of the ring gates in AGENT.md
 (C1 ↔ G1, C2 + C4 ↔ G2; C3 and C5 are close-only). G3 — no
 unresolved blockers — is checked at ring close, not per wave: a
