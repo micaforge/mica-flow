@@ -54,6 +54,32 @@ roles, one orchestrator across the track.
 - **Lead stays captain.** The lead never managed specialists directly —
   just unblocked and sanity-checked at boundaries.
 
+## Branch shape: the ripple
+
+Mid-track, a wave's gate review can surface a branch-need: one
+claim that must be tested, or one set of items that must be
+graded, before the wave can honestly close. That branch is a
+**ripple**:
+
+- **Shape:** named trigger → brief → work → verdict. The ripple
+  lives in the parent flow's records (`_run/ripples/<slug>.md`),
+  inherits the parent's gates and vocabulary, and is bounded
+  like any specialist task.
+- **Gate discipline:** the gate review opens it — are the deltas
+  real? is the evidence at the claimed rung? are the candidates
+  triaged? The ripple resolves before the main arc passes the
+  gate, or the gate passes **with the gap named and owned** in
+  the gate record. Never silently.
+- **Ripples don't ripple.** A ripple that needs a branch of its
+  own escalates to the lead. One level keeps the shape honest.
+- **Proven shapes:** the *review ripple* (grade all items for
+  completion before proceeding) and the *probe ripple* (one
+  load-bearing claim tested live before the wave proceeds — the
+  brief for one lives in `templates/probe-brief/`).
+
+Ripple findings feed the track's synthesis like everything else
+the arc produces.
+
 ## Anti-patterns
 
 - Don't use for open-ended builds — orchestrators coordinate, they don't
