@@ -19,7 +19,13 @@ the briefs; the lead verifies the gates. No context loss, no vague
 
 Each: the decision, why it exists, and the failure mode if you drop it.
 
-1. **Rings live at `~/workspace/flows/<name>/`; cycles are `aNN-<slug>`.**
+1. **Rings live at `~/workspace/flows/<name>/`; cycles are
+   `<prefix><NN>-<slug>`.** The prefix is project-specific — 1–2
+   letters defined per flow in its ROUTER.md (`d01`, `r01`, `t02`);
+   sub-phases take dot notation (`r03.01`). Not generic `aNN`:
+   sortable names only help if the prefix says which project a
+   cycle belongs to. Existing `aNN` flows keep their names — no
+   retroactive renames.
    Sortable, greppable, machine-parseable — the status CLI reads the
    directory, not a database. Drop it and every tool has to learn your
    layout.
