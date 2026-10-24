@@ -43,3 +43,10 @@ cycle: "{{CYCLE_ID}}"
 ## Done when
 
 All gates in `cycle.md` pass.
+
+---
+
+*Acceptance lines in this brief are **bars set, not results
+claimed** — they state what the cycle must clear, never what it
+has achieved. Results live in the cycle's records, graded against
+these bars at close.*

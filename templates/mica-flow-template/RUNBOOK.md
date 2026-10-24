@@ -35,7 +35,13 @@ just implements it" by wave three.
    no TODOs). Exit 1 = BLOCKED: fix or escalate, do not advance.
 2. **Never dispatch wave N+1 until wave N passes the close gate.**
    A failed close is a stop, not a suggestion.
-3. Closer records any decision checkpoints the wave produced
+3. **Reworded gates state the claim in the headline.** If a gate
+   closes with its claim reworded — narrowed, conditioned,
+   qualified — the gate table's own pass cell carries the reworded
+   claim (e.g. "PASS as reworded, with a live known gap: …"), never
+   the original wording with the qualifier buried in Findings.
+   A reader of the headline alone must get the true claim.
+4. Closer records any decision checkpoints the wave produced
    (`_run/checkpoints.md`, OPEN until the user answers) and relays them.
 
 ## Decision checkpoints
