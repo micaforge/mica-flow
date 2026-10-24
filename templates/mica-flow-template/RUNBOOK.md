@@ -22,6 +22,33 @@ Distilled from soma-rings' lead procedure, trimmed for small rings.
 2. Spot-check 2–3 claims against cited files/lines.
 3. If deliverables are missing or wrong, send the agent back — do not advance.
 
+## Claims discipline
+
+A completion report is a claim, not a fact. Every claim a cycle
+record states in the present tense — "live", "demonstrated",
+"standing", "verified" — gets a row in the cycle's claims table
+(`cycle.md`, `## Claims`):
+
+| claim | rung | evidence | date | re-probe due |
+|-------|------|----------|------|--------------|
+
+- **Rungs, highest first:** 1 live behaviour (the thing answers
+  now) · 2 built artifacts on disk · 3 records only. A claim cites
+  the highest rung reached and a pointer (path:line, port, seq).
+- **Present-tense claims expire.** At the re-probe due date the
+  claim is re-probed or downgraded in the record — never silently
+  carried forward. Live state decays (rollbacks, restarts, deploys)
+  without any record being wrong when it was written.
+- **Gate wording points at artifacts.** A gate that reads
+  "demonstrated" or "verified" names the verification artifact in
+  `_run/`, not the narrative around it.
+
+The closer checks the claims table at the wave close gate: no
+expired present-tense claims, no gate wording without its artifact.
+
+*(Pattern source: implementation audit ia01–ia03, 2026-10-24 —
+records are claims; verdicts climb the evidence ladder.)*
+
 ## Close the wave (the closer role)
 
 Every wave names 1–2 **closers** — not the builder. The closer's only job
@@ -35,7 +62,13 @@ just implements it" by wave three.
    no TODOs). Exit 1 = BLOCKED: fix or escalate, do not advance.
 2. **Never dispatch wave N+1 until wave N passes the close gate.**
    A failed close is a stop, not a suggestion.
-3. Closer records any decision checkpoints the wave produced
+3. **Reworded gates state the claim in the headline.** If a gate
+   closes with its claim reworded — narrowed, conditioned,
+   qualified — the gate table's own pass cell carries the reworded
+   claim (e.g. "PASS as reworded, with a live known gap: …"), never
+   the original wording with the qualifier buried in Findings.
+   A reader of the headline alone must get the true claim.
+4. Closer records any decision checkpoints the wave produced
    (`_run/checkpoints.md`, OPEN until the user answers) and relays them.
 
 **The flow's final wave is a reflection wave.** When the last wave
@@ -79,6 +112,12 @@ The harvest runs under six rules (template-steward arc 1,
    working tree. The brief states when and by whom worktrees are
    removed (e.g. "leave in place until the gate's merge report,
    then the seat removes them"). No orphan worktrees by default.
+
+The C-checks are the operative form of the ring gates in AGENT.md
+(C1 ↔ G1, C2 + C4 ↔ G2; C3 and C5 are close-only). G3 — no
+unresolved blockers — is checked at ring close, not per wave: a
+block carrying its deciding seat, the decision needed, and the
+date is parked, and a parked wave does not fail a close.
 
 ## Decision checkpoints
 
