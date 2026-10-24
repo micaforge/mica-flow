@@ -1,6 +1,6 @@
 ---
 type: cycle
-status: seeded
+status: outline
 arc: "{{FLOW_NAME}}"
 title: "{{CYCLE_ID}}: {{CYCLE_TITLE}}"
 depends_on: [{{DEPENDS_ON}}]

@@ -38,6 +38,12 @@ just implements it" by wave three.
 3. Closer records any decision checkpoints the wave produced
    (`_run/checkpoints.md`, OPEN until the user answers) and relays them.
 
+The C-checks are the operative form of the ring gates in AGENT.md
+(C1 ↔ G1, C2 + C4 ↔ G2; C3 and C5 are close-only). G3 — no
+unresolved blockers — is checked at ring close, not per wave: a
+block carrying its deciding seat, the decision needed, and the
+date is parked, and a parked wave does not fail a close.
+
 ## Decision checkpoints
 
 When a wave hits a fork only the user can resolve (two defensible

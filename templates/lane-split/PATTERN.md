@@ -34,7 +34,10 @@ in ~2.5h wall-clock.
   deliverables, so the next wave was pre-briefed.
 - **Bounded briefs with stop conditions.** Lane 3 (Postiz) stopped cleanly
   at an environmental blocker (docker pulls) instead of burning budget.
-  A BLOCKED wave is a clean state, not a failure.
+  A BLOCKED wave is a clean state, not a failure — provided the
+  block names its deciding seat, the decision needed, and the date
+  it was put to them. A block without that address is a stall, not
+  a state.
 - **Parallel lanes.** Four lanes progressed concurrently; the lead's job
   was tracking, not building.
 

@@ -19,7 +19,27 @@ created: "{{DATE}}"
 |---|------|--------|------|
 | G1 | every cycle's `cycle.md` status = done | grep status | all done |
 | G2 | every `_run/` has its brief's deliverables | ls per cycle | none missing |
-| G3 | no unresolved blockers | grep -r "blocked" _run/ | none found |
+| G3 | no unresolved blockers | grep -r "blocked" _run/ | none unresolved — a block carrying its deciding seat, the decision needed, and the date it was put to them is parked (a clean state), not unresolved |
+
+These ring gates are the summary. The operative per-wave close is
+the closer's C1–C5 check in RUNBOOK.md: C1 ↔ G1, C2 + C4 ↔ G2;
+C3 (no bare TODO gates) and C5 (next cycle's BRIEF ready) are
+close-only additions; G3 is checked at ring close.
+
+## Status vocabulary
+
+Ring `status:` (frontmatter above) — update it as the state
+changes; a status left behind is a defect, not a default:
+
+- `seeded` — scaffolded only; nothing dispatched yet.
+- `active` — at least one cycle dispatched; not all closed.
+- `done` — every cycle closed at its gates.
+
+Cycle `status:` (cycle.md frontmatter):
+
+- `outline` — goal and gates sketched; brief not yet complete.
+- `ready` — brief complete; dispatchable.
+- `done` — gates passed at the close gate.
 
 ## State
 
