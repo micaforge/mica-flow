@@ -101,6 +101,23 @@ its brief gets lane N's outputs appended.
 
 - Relay each completion to Curtis with: what shipped, verification notes,
   deviations, what's next.
+- Close every piece of lane work with the **five-line relay** to the
+  parent, sent in the same turn the work lands:
+
+  ```
+  what landed — <the deliverable, one line>
+  gate — <the gate it waits on, or "none">
+  ask — <the decision or answer needed, or "none">
+  state — <the lane's state after this landing>
+  links — <file/chat links to the source docs>
+  ```
+
+  A report inside the lane's own chat is not a relay. The same turn
+  also updates the lane's LANE_MEMORY and sends the same-form notice
+  to any peer lane whose inputs the work changed. Ungated
+  completions deliver through their records alone.
+
+  *(Pattern source: lane-relay standing rule, 2026-10-21.)*
 - Run the close gate yourself — never the builder:
 
 ```bash
