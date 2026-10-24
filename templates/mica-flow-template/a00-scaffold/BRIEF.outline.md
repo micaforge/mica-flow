@@ -8,6 +8,10 @@ cycle: "{{CYCLE_ID}}"
 
 > Loose outline. The agent completing the previous cycle fills this in fully
 > based on actual findings. Report to your parent (the router), not the outline author.
+>
+> Brief-expansion standard: only the **first** brief of a new direction is
+> written complete, by the lead. Later briefs start as outlines (this shape)
+> and are expanded by the agent completing the previous cycle.
 
 ## Task (outline)
 
@@ -31,3 +35,10 @@ cycle: "{{CYCLE_ID}}"
 
 - `summary.md`
 {{NEXT_BRIEF_OUTLINE}}
+
+---
+
+*Acceptance lines in this brief are **bars set, not results
+claimed** — they state what the cycle must clear, never what it
+has achieved. Results live in the cycle's records, graded against
+these bars at close.*
