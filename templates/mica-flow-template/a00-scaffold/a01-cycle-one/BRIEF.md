@@ -42,6 +42,10 @@ cycle: "{{CYCLE_ID}}"
 ## Deliverables → `{{CYCLE_ID}}/_run/`
 
 1. `summary.md` — what was built, files touched, key findings.
+2. If this cycle creates a reusable workflow, pattern,
+   script, or tool: its `~/skills/` package (SKILL.md +
+   skill.yaml), scaffolded in THIS cycle — a close-out
+   deliverable, not a retrofit.
 {{NEXT_BRIEF_INSTRUCTION}}
 
 ## Done when

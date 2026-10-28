@@ -21,6 +21,7 @@ depends_on: [{{DEPENDS_ON}}]
 | G3 | next cycle's BRIEF completed (if not last) | read next BRIEF.md | not an outline |
 | G4 | verified against live data (not just thin/mocked) | {{LIVE_DATA_VERIFY}} | {{LIVE_DATA_PASS}} |
 | G5 | durability: deliverables + records inside the project folder under `~/workspace`; any system-layer copy named with its floor | file paths in `_run/` + summary | nothing durable outside the project tree |
+| G6 | skills home: any reusable workflow/pattern/script/tool this cycle created is packaged under `~/skills/` | ls `~/skills/<package>/` | SKILL.md + skill.yaml present — or the cycle created nothing reusable |
 
 ## Method
 
