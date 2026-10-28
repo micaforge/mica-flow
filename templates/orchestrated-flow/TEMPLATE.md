@@ -47,6 +47,9 @@ terse summary. She confirms or redirects.
 5. Durability: everything durable lives in `~/workspace` inside
    the project folder; the system layer is replaceable copies
    restored by a named floor; /tmp is scratch only.
+6. Skills home: a reusable workflow, pattern, script, or tool
+   produced here is packaged under `~/skills/` (the named
+   durability exception) at the cycle that creates it.
 ```
 
 ## Dispatch the orchestrator

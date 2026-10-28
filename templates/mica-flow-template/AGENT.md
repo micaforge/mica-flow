@@ -53,6 +53,13 @@ Cycle `status:` (cycle.md frontmatter):
   never durable — observed at best, wiped at worst.
   Anything needed later moves into the project folder
   before the session ends.
+- **Named exception — skills:** `~/skills/` sits
+  outside `~/workspace` by Curtis's adoption
+  (2026-10-28, canary-verified durable). A flow that
+  produces a reusable workflow, pattern, script, or
+  tool names its `~/skills/` package as a close-out
+  deliverable — scaffolded at the cycle that creates
+  the thing, not retrofitted later.
 
 ## State
 
