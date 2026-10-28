@@ -34,6 +34,10 @@ cycle: "{{CYCLE_ID}}"
 1. Read-only outside the files this brief names.
 2. Cite every claim (file:line). Tag observed / inferred / unknown.
 3. Budget: 30 min / 60 tool calls. Stop and report if exceeded.
+4. Durability: everything this cycle produces lives in
+   the project folder under `~/workspace`. System-layer
+   files are replaceable copies restored by a named
+   floor — never the only copy. /tmp is scratch only.
 
 ## Deliverables → `{{CYCLE_ID}}/_run/`
 

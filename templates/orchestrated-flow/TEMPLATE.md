@@ -44,6 +44,9 @@ terse summary. She confirms or redirects.
 3. Every claim cites its source. Tag observed / inferred / unknown.
 4. If your session ends mid-track, the continuation picks up from
    `_run/` — keep it current.
+5. Durability: everything durable lives in `~/workspace` inside
+   the project folder; the system layer is replaceable copies
+   restored by a named floor; /tmp is scratch only.
 ```
 
 ## Dispatch the orchestrator

@@ -41,6 +41,19 @@ Cycle `status:` (cycle.md frontmatter):
 - `ready` — brief complete; dispatchable.
 - `done` — gates passed at the close gate.
 
+## Durability — the three buckets
+
+- **Durable:** files live in `~/workspace`, inside the
+  project's own folder — the only guaranteed root.
+- **System layer is replaceable copies** (units, /etc,
+  /usr): source of truth stays in the project folder,
+  copies are restored by a named floor, never
+  hand-restored twice.
+- **Scratch:** /tmp and home-outside-workspace are
+  never durable — observed at best, wiped at worst.
+  Anything needed later moves into the project folder
+  before the session ends.
+
 ## State
 
 <!-- the router updates this as cycles complete -->
