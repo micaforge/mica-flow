@@ -86,3 +86,13 @@ directory, chat-less lanes in the parent flow directory.
   them.
 
 *(Pattern source: estate-wide lane practice, set 2026-10-21.)*
+
+## Cycle naming convention (2026-10-19)
+
+Cycles use project-specific prefixes, not generic `aNN`:
+
+- Each flow defines a 1-2 letter prefix in ROUTER.md (e.g. `workspace-docs` → `d`, `workspace-restructure` → `r`, `decision-taps` → `t`)
+- Cycles: `<prefix><NN>` (e.g. `d01`, `d02`, `r01`)
+- Sub-phases: `<prefix><NN>.<MM>` (e.g. `r03.01`, `r03.02`) — dot notation, not letter suffixes like `r03b`
+
+Existing flows with `aNN` names keep them (no retroactive rename).
