@@ -2,6 +2,7 @@
 type: brief
 status: ready
 cycle: "{{CYCLE_ID}}"
+class: design
 ---
 
 # BRIEF — {{CYCLE_ID}}: {{CYCLE_TITLE}}
@@ -38,6 +39,23 @@ cycle: "{{CYCLE_ID}}"
    the project folder under `~/workspace`. System-layer
    files are replaceable copies restored by a named
    floor — never the only copy. /tmp is scratch only.
+
+## Claims register
+
+<!-- Every load-bearing factual claim this cycle's work
+     states or depends on — each with the source it rests
+     on, the date that source was ruled, and the claim's
+     owner. REQUIRED and filled for production briefs
+     (frontmatter `class: production`): the flow lint
+     refuses a production brief without one — no
+     register, no production. Other classes may leave
+     the table empty. A claim whose source is a dated
+     preview or an unruled framing reads as stale at a
+     glance; that visibility is the point. (Born from
+     the ef03 teaser premise failure, 2026-10-28.) -->
+
+| Claim | Source | Date ruled | Owner |
+|-------|--------|------------|-------|
 
 ## Deliverables → `{{CYCLE_ID}}/_run/`
 

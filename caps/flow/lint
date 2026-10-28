@@ -88,6 +88,34 @@ def lint(path):
             findings.append(f"{entry}: cycle dir name carries no <prefix>NN- prefix")
         if not has_brief:
             findings.append(f"{entry}: missing BRIEF.md")
+        else:
+            try:
+                with open(os.path.join(d, "BRIEF.md"),
+                          encoding="utf-8", errors="ignore") as f:
+                    btxt = f.read()
+            except OSError:
+                btxt = ""
+            is_prod = re.search(r"^class:\s*production\s*$",
+                                btxt, re.M | re.I)
+            reg = re.search(r"^##\s+Claims register", btxt, re.M | re.I)
+            if is_prod and not reg:
+                findings.append(
+                    f"{entry}: production brief without a claims "
+                    f"register (no register, no production)")
+            elif is_prod and reg:
+                section = btxt[reg.end():]
+                nxt = re.search(r"^##\s", section, re.M)
+                if nxt:
+                    section = section[:nxt.start()]
+                rows = [ln for ln in section.splitlines()
+                        if ln.strip().startswith("|")]
+                data = [r for r in rows
+                        if "claim" not in r.lower().split("|")[1]
+                        and not re.fullmatch(r"[\s\-|:]+", r)]
+                if not data:
+                    findings.append(
+                        f"{entry}: claims register present but "
+                        f"empty (production brief)")
         if not has_cycle:
             findings.append(f"{entry}: missing cycle.md")
         if not os.path.isdir(os.path.join(d, "_run")):
