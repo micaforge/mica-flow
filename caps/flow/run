@@ -8,15 +8,22 @@ Evolved from the ring pattern, informed by meetsoma/soma-rings:
 - lean: no ceremony tax on small flows
 
 Usage:
-  mica-flow <flow-name> "<cycle1>,<cycle2>,<cycle3>" [--goal "..."]
+  mica-flow <flow-name> "<cycle1>,<cycle2>,<cycle3>" [--goal "..."] [--prefix <p>]
+
+Cycles are named with a project-specific prefix (AGENTS.md convention,
+2026-10-19): <prefix>01-<cycle1>, <prefix>02-<cycle2>, ... The generic
+`aNN` series is retired. --prefix picks the letters; omitted, the
+prefix is derived from the flow name's word initials (setup-protocols
+→ sp, backup-cadence → bc). Explicit beats derived — pass --prefix
+when the lane already has a series (pa, sh, mt, ...).
 
 Example:
   mica-flow pi-artifact "privileged-handlers,native-ui,wireup-audit" \\
-      --goal "Rebuild pi-web-ui with native UI + privileged proxy"
+      --goal "Rebuild pi-web-ui with native UI + privileged proxy" --prefix pa
 
 Creates ~/workspace/flows/<flow-name>/ with:
-  AGENT.md, RUNBOOK.md, ROUTER.md,
-  a01-<c1>/{cycle.md,BRIEF.md,_run/}, a02-.../{cycle.md,BRIEF.md,_run/}, ...
+  AGENT.md, BOUNDARY.md, RUNBOOK.md, TODO.md, ROUTER.md, LANE_MEMORY.md,
+  <p>01-<c1>/{cycle.md,BRIEF.md,_run/}, <p>02-.../{cycle.md,BRIEF.md,_run/}, ...
 """
 import os
 import shutil
@@ -24,7 +31,7 @@ import sys
 from datetime import date
 
 TEMPLATE = os.path.expanduser(
-    "~/workspace/micaforge/repos/micaforge-tools/templates/mica-flow-template")
+    "~/workspace/projects/micaforge/repos/micaforge-tools/templates/mica-flow-template")
 FLOW_BASE = os.path.expanduser("~/workspace/flows")
 
 
@@ -42,9 +49,18 @@ def main():
     flow_name = sys.argv[1]
     cycles = [c.strip() for c in sys.argv[2].split(",")]
     goal = ""
+    prefix = ""
     for i, a in enumerate(sys.argv):
         if a == "--goal" and i + 1 < len(sys.argv):
             goal = sys.argv[i + 1]
+        if a == "--prefix" and i + 1 < len(sys.argv):
+            prefix = sys.argv[i + 1].strip().lower()
+    if not prefix:
+        # derive from the flow name's word initials (max 3 letters)
+        prefix = "".join(w[0] for w in flow_name.split("-") if w)[:3].lower() or "x"
+
+    def cid(i, name):
+        return f"{prefix}{i:02d}-{name}"
 
     dest = os.path.join(FLOW_BASE, flow_name)
     if os.path.exists(dest):
@@ -55,9 +71,9 @@ def main():
     stage = dest
     today = date.today().isoformat()
 
-    # a01 gets the full templates; a02+ get outlines
-    shutil.move(os.path.join(stage, "a01-cycle-one"),
-                os.path.join(stage, f"a01-{cycles[0]}"))
+    # cycle 1 gets the full templates; cycle 2+ get outlines
+    shutil.move(os.path.join(stage, "x01-cycle-one"),
+                os.path.join(stage, cid(1, cycles[0])))
 
     with open(os.path.join(stage, "BRIEF.outline.md")) as f:
         brief_outline = f.read()
@@ -67,13 +83,13 @@ def main():
     os.remove(os.path.join(stage, "cycle.outline.md"))
 
     for i, cycle in enumerate(cycles[1:], start=2):
-        cid = f"a{i:02d}-{cycle}"
-        cdir = os.path.join(stage, cid)
+        c_id = cid(i, cycle)
+        cdir = os.path.join(stage, c_id)
         os.makedirs(os.path.join(cdir, "_run"))
-        prev = f"a{i-1:02d}-{cycles[i-2]}"
-        nxt = f"a{i+1:02d}-{cycles[i]}" if i < len(cycles) else ""
+        prev = cid(i - 1, cycles[i - 2])
+        nxt = cid(i + 1, cycles[i]) if i < len(cycles) else ""
         bctx = {
-            "CYCLE_ID": cid,
+            "CYCLE_ID": c_id,
             "CYCLE_TITLE": cycle.replace("-", " ").title(),
             "CYCLE_TASK_OUTLINE": "TODO",
             "BUILDER_KIND_OUTLINE": "TODO: what builder kind will this cycle need?",
@@ -82,7 +98,7 @@ def main():
         }
         cctx = {
             "FLOW_NAME": flow_name,
-            "CYCLE_ID": cid,
+            "CYCLE_ID": c_id,
             "CYCLE_TITLE": cycle.replace("-", " ").title(),
             "DEPENDS_ON": prev,
             "CYCLE_GOAL_OUTLINE": "TODO",
@@ -92,16 +108,16 @@ def main():
         with open(os.path.join(cdir, "cycle.md"), "w") as f:
             f.write(fill(cycle_outline, cctx))
 
-    # Fill a01's full templates
-    c1dir = os.path.join(stage, f"a01-{cycles[0]}")
-    nxt = f"a02-{cycles[1]}" if len(cycles) > 1 else ""
+    # Fill cycle 1's full templates
+    c1dir = os.path.join(stage, cid(1, cycles[0]))
+    nxt = cid(2, cycles[1]) if len(cycles) > 1 else ""
     for fname, extra in (("cycle.md", {}), ("BRIEF.md", {})):
         p = os.path.join(c1dir, fname)
         with open(p) as f:
             text = f.read()
         ctx = {
             "FLOW_NAME": flow_name,
-            "CYCLE_ID": f"a01-{cycles[0]}",
+            "CYCLE_ID": cid(1, cycles[0]),
             "CYCLE_TITLE": cycles[0].replace("-", " ").title(),
             "DEPENDS_ON": "",
             "DATE": today,
@@ -123,8 +139,8 @@ def main():
             f.write(fill(text, ctx))
 
     # Fill ring AGENT.md
-    cycle_list = "\n".join(f"{i+1}. `a{i+1:02d}-{c}` — TODO" for i, c in enumerate(cycles))
-    state_list = "\n".join(f"- [ ] a{i+1:02d}-{c}:" for i, c in enumerate(cycles))
+    cycle_list = "\n".join(f"{i+1}. `{cid(i+1, c)}` — TODO" for i, c in enumerate(cycles))
+    state_list = "\n".join(f"- [ ] {cid(i+1, c)}:" for i, c in enumerate(cycles))
     with open(os.path.join(dest, "AGENT.md")) as f:
         text = f.read()
     # Replace the placeholder state checklist
@@ -150,27 +166,42 @@ def main():
             "FLOW_GOAL": goal or "TODO: flow goal",
             "CYCLE_LIST": cycle_list,
             "DATE": today,
-            "CYCLE1": f"a01-{cycles[0]}",
-            "CYCLE2": f"a02-{cycles[1]}" if len(cycles) > 1 else "",
-            "CYCLE3": f"a03-{cycles[2]}" if len(cycles) > 2 else "",
+            "CYCLE1": cid(1, cycles[0]),
+            "CYCLE2": cid(2, cycles[1]) if len(cycles) > 1 else "",
+            "CYCLE3": cid(3, cycles[2]) if len(cycles) > 2 else "",
+            "PREFIX": prefix,
         }))
+
+    # Fill BOUNDARY.md / LANE_MEMORY.md placeholders
+    for fname in ("BOUNDARY.md", "LANE_MEMORY.md"):
+        p = os.path.join(dest, fname)
+        if os.path.exists(p):
+            with open(p) as f:
+                text = f.read()
+            with open(p, "w") as f:
+                f.write(fill(text, {
+                    "FLOW_NAME": flow_name,
+                    "DATE": today,
+                    "PREFIX": prefix,
+                }))
 
     # Fill ROUTER.md dispatch steps
     steps = []
     for i, cycle in enumerate(cycles):
-        cid = f"a{i+1:02d}-{cycle}"
-        steps.append(f"{i+1}. Read `{cid}/BRIEF.md` + `{cid}/cycle.md`, spawn the agent.")
-        steps.append(f"   Verify gates in `{cid}/cycle.md` pass and `_run/` is complete.")
+        c_id = cid(i + 1, cycle)
+        steps.append(f"{i+1}. Read `{c_id}/BRIEF.md` + `{c_id}/cycle.md`, spawn the agent.")
+        steps.append(f"   Verify gates in `{c_id}/cycle.md` pass and `_run/` is complete.")
         if i < len(cycles) - 1:
-            steps.append(f"   Next BRIEF (`a{i+2:02d}-{cycles[i+1]}/BRIEF.md`) must be completed, not outlined.")
+            steps.append(f"   Next BRIEF (`{cid(i+2, cycles[i+1])}/BRIEF.md`) must be completed, not outlined.")
     with open(os.path.join(dest, "ROUTER.md")) as f:
         text = f.read()
     with open(os.path.join(dest, "ROUTER.md"), "w") as f:
         f.write(fill(text, {"DISPATCH_STEPS": "\n".join(steps)}))
 
     print(f"scaffolded flow: {dest}")
-    print(f"  cycles: {', '.join(cycles)}")
-    print(f"  next: fill in a01's cycle.md goal/gates and BRIEF.md task")
+    print(f"  prefix: {prefix} · cycles: {', '.join(cid(i+1, c) for i, c in enumerate(cycles))}")
+    print(f"  next: fill in {cid(1, cycles[0])}'s cycle.md goal/gates and BRIEF.md task;")
+    print(f"        complete BOUNDARY.md's data map; register the lane in ~/memory/lanes/INDEX.md")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,146 @@
+#!/usr/bin/env python3
+"""mica-flow-lint — check a flow dir against the scaffold standard.
+
+Usage:
+  mica flow lint <flow-name|path> [--more] [--json]
+
+Standard (setup-protocols plan §2.1, template refreshed p03):
+  top level: AGENT.md, BOUNDARY.md, RUNBOOK.md, TODO.md, ROUTER.md,
+             + a LANE_MEMORY (flow-dir file, or the lane's side-chat
+             copy at ~/side-chats/<chat-id>/LANE_MEMORY.md)
+  per cycle dir (<prefix>NN-<name>/): BRIEF.md, cycle.md, _run/
+  naming: project-specific prefix; the generic `aNN` series is a
+  finding, as are mixed prefixes inside one flow.
+
+Reports only — never fixes. Exit: 0 clean · 1 findings · 2 error.
+Brief style: summary first; per-finding lines capped unless --more.
+"""
+import glob
+import json
+import os
+import re
+import sys
+
+FLOW_BASE = os.path.expanduser("~/workspace/flows")
+STANDARD_FILES = ["AGENT.md", "BOUNDARY.md", "RUNBOOK.md", "TODO.md", "ROUTER.md"]
+NON_CYCLE_DIRS = {"examples", "taps", "files", "hidden_files", "templates"}
+CYCLE_RE = re.compile(r"^([a-z]+)(\d{2})-")
+
+
+def lane_memory_lanes():
+    """Lane names that keep a LANE_MEMORY in a side-chat dir."""
+    lanes = set()
+    for p in glob.glob(os.path.expanduser("~/side-chats/*/LANE_MEMORY.md")):
+        try:
+            with open(p, encoding="utf-8", errors="ignore") as f:
+                head = f.read(2000)
+        except OSError:
+            continue
+        m = re.search(r"^lane:\s*(\S+)", head, re.M)
+        if m:
+            lanes.add(m.group(1).strip("\"'"))
+    return lanes
+
+
+def resolve(target):
+    if os.path.isdir(target):
+        return os.path.abspath(target)
+    cand = os.path.join(FLOW_BASE, target)
+    if os.path.isdir(cand):
+        return cand
+    return None
+
+
+def lint(path):
+    name = os.path.basename(path.rstrip("/"))
+    findings = []
+    present = []
+    for f in STANDARD_FILES:
+        (present if os.path.isfile(os.path.join(path, f)) else findings).append(
+            f if os.path.isfile(os.path.join(path, f)) else f"missing standard file: {f}")
+    missing_files = [f for f in findings if f.startswith("missing standard file")]
+    ok_files = [f for f in STANDARD_FILES if os.path.isfile(os.path.join(path, f))]
+
+    lane_ok = os.path.isfile(os.path.join(path, "LANE_MEMORY.md")) or \
+        name in lane_memory_lanes()
+    if not lane_ok:
+        findings.append("missing LANE_MEMORY (no flow-dir file, "
+                        "no side-chat copy for this lane)")
+
+    cycles = []
+    prefixes = set()
+    for entry in sorted(os.listdir(path)):
+        d = os.path.join(path, entry)
+        if not os.path.isdir(d) or entry.startswith((".", "_")) or entry in NON_CYCLE_DIRS:
+            continue
+        m = CYCLE_RE.match(entry)
+        has_brief = os.path.isfile(os.path.join(d, "BRIEF.md"))
+        has_cycle = os.path.isfile(os.path.join(d, "cycle.md"))
+        if not m and not has_brief and not has_cycle:
+            continue  # not a cycle dir (asset dir etc.)
+        cycles.append(entry)
+        if m:
+            prefixes.add(m.group(1))
+            if m.group(1) == "a":
+                findings.append(f"{entry}: generic `aNN` cycle naming (retired — "
+                                f"use a project-specific prefix)")
+        else:
+            findings.append(f"{entry}: cycle dir name carries no <prefix>NN- prefix")
+        if not has_brief:
+            findings.append(f"{entry}: missing BRIEF.md")
+        if not has_cycle:
+            findings.append(f"{entry}: missing cycle.md")
+        if not os.path.isdir(os.path.join(d, "_run")):
+            findings.append(f"{entry}: missing _run/")
+    if len(prefixes) > 1:
+        findings.append(f"mixed cycle prefixes in one flow: {', '.join(sorted(prefixes))}")
+
+    return {
+        "flow": name,
+        "path": path,
+        "standard_files_ok": len(ok_files),
+        "standard_files_total": len(STANDARD_FILES),
+        "lane_memory_ok": lane_ok,
+        "cycles": cycles,
+        "findings": findings,
+        "clean": not findings,
+    }
+
+
+def main():
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    more = "--more" in sys.argv
+    as_json = "--json" in sys.argv
+    if not args or args[0] in ("-h", "--help"):
+        print(__doc__)
+        sys.exit(0 if args else 2)
+
+    path = resolve(args[0])
+    if path is None:
+        print(f"scaffold-lint: no such flow dir: {args[0]}", file=sys.stderr)
+        sys.exit(2)
+
+    r = lint(path)
+    if as_json:
+        print(json.dumps(r, indent=2))
+        sys.exit(0 if r["clean"] else 1)
+
+    print(f"scaffold-lint: {r['flow']}")
+    print(f"  standard files: {r['standard_files_ok']}/{r['standard_files_total']} ok"
+          f" · lane-memory: {'ok' if r['lane_memory_ok'] else 'MISSING'}"
+          f" · cycles: {len(r['cycles'])} checked")
+    if r["clean"]:
+        print("  result: clean")
+    else:
+        cap = len(r["findings"]) if more else 6
+        for f in r["findings"][:cap]:
+            print(f"  ✗ {f}")
+        extra = len(r["findings"]) - cap
+        if extra > 0:
+            print(f"  … +{extra} more findings (--more)")
+        print(f"  result: {len(r['findings'])} finding(s)")
+    sys.exit(0 if r["clean"] else 1)
+
+
+if __name__ == "__main__":
+    main()
