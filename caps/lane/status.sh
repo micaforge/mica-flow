@@ -6,6 +6,10 @@
 # LANES.md carries a chat_id column (backfilled at scaffold); the agent uses
 # chat.read_messages per chat_id for verbatim last words when needed.
 set -uo pipefail
+if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
+  sed -n '2,7p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+  exit 0
+fi
 source ~/workspace/caps/_shared/output.sh
 eval "$(mica_parse_output_flags "$@")"
 
