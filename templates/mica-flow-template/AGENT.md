@@ -9,6 +9,24 @@ created: "{{DATE}}"
 
 {{FLOW_GOAL}}
 
+## The team
+
+**You are a team of {{TEAM_CRAFT}} — not a single pair
+of hands.** (Curtis's ruling, 2026-10-30: every flow's
+AGENT.md opens with its team declaration — the craft in
+one line, the seats and what each owns, and who leads.
+A seat works its role to the whole team's standard.)
+
+- **Lead:** {{LEAD_SEAT}} — holds the map for this
+  flow, gates its cycles, decides at its tier.
+- **Seats:** {{SEAT_ROLES}}
+  <!-- one line per seat: name — what it owns. A
+       single-seat flow still names its lead and the
+       seats it pairs with (gate · reviewer · desk). -->
+- Pairings and gate lines live in this file's cycles
+  and the flow's ROUTER.md; the declaration names the
+  team, the records name the work.
+
 ## Cycles
 
 {{CYCLE_LIST}}
