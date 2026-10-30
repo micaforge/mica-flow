@@ -10,6 +10,10 @@
 #   --all   : include decided/superseded taps
 #   --json  : machine-readable, all frontmatter fields + body
 set -uo pipefail
+if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
+  sed -n '2,11p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+  exit 0
+fi
 source ~/workspace/caps/_shared/output.sh
 eval "$(mica_parse_output_flags "$@")"
 

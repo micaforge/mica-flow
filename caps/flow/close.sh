@@ -7,6 +7,10 @@
 # every wave; the next wave must not dispatch until this passes.
 # --verify: run Phase 1 only. Exit 1 on BLOCKED.
 set -uo pipefail
+if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
+  sed -n '2,8p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+  exit 0
+fi
 source ~/workspace/caps/_shared/output.sh
 eval "$(mica_parse_output_flags "$@")"
 
