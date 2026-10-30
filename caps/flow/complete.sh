@@ -5,7 +5,7 @@
 # Use when: Curtis asks "what's done, what's stuck" across all flows.
 # Output contract: ≤10 lines default, --all for full, --json for machine mode.
 set -uo pipefail
-source "$(dirname "$0")/../_shared/output.sh"
+source ~/workspace/caps/_shared/output.sh
 
 FLOWS_DIR="${FLOWS_DIR:-$HOME/workspace/flows}"
 JSON=0; ALL=0

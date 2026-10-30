@@ -18,6 +18,7 @@ CHECK=0; FORCE=0; CHECKFILE=""; JSON=0; MORE=0
 ARGS=()
 for a in "$@"; do
   case "$a" in
+    --help|-h) sed -n '2,12p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; exit 0 ;;
     --check) CHECK=1 ;;
     --force) FORCE=1 ;;
     --json) JSON=1 ;;
