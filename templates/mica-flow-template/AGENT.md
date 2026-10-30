@@ -61,6 +61,17 @@ Cycle `status:` (cycle.md frontmatter):
   deliverable — scaffolded at the cycle that creates
   the thing, not retrofitted later.
 
+## Decision points — class at source
+
+A decision point in this flow is classed before it
+surfaces anywhere, under the tap-triage rubric
+(`templates/tap-triage/PATTERN.md` in the mica-flow
+template set): six ordered tests, first match wins →
+Curtis; no match → decidable at desk/Mica, logged
+here with overrule standing. A point missing its
+premises bounces back for a complete packet — it
+never routes upward half-formed.
+
 ## State
 
 <!-- the router updates this as cycles complete -->
