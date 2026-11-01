@@ -1,4 +1,4 @@
-<!-- Versioned copy — source of truth: micaforge/baton-flow @ d9f6e3a83f01c747baca6bf71c5a3db68e21eba7 (template/TEMPLATE.md). Folds update the source first and ripple here in the same act; do not edit this copy's substance here. -->
+<!-- Versioned copy — source of truth: micaforge/baton-flow @ 2cb718888d05cc0a6a801bfc9492b29c5273c1d8 (template/TEMPLATE.md). Folds update the source first and ripple here in the same act; do not edit this copy's substance here. -->
 
 # TEMPLATE — the baton flow (rotating-lead waves)
 
@@ -23,6 +23,19 @@ named in its header.
   lead or lead calls in. A consult does not hold
   the stick unless the roster lists it as a crew
   lane.
+
+## Memory at birth
+
+A lane adopting this template is born with a
+LANE_MEMORY in the skeleton beside this file
+(LANE_MEMORY.md): the reserved CENTRE span at
+its head (markers + appends zone — the centre's
+text is stamped by the centre, never written by
+the lane), state + pointers only, the STICK
+section under NEXT (dated entries, counterparties
+named), and a JOURNAL in every cycle the memory
+points into — the story lives in the journal,
+never in the memory.
 
 ## The pass
 

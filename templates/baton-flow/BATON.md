@@ -1,4 +1,4 @@
-<!-- Versioned copy — source of truth: micaforge/baton-flow @ d9f6e3a83f01c747baca6bf71c5a3db68e21eba7 (template/BATON.md). Folds update the source first and ripple here in the same act; do not edit this copy's substance here. -->
+<!-- Versioned copy — source of truth: micaforge/baton-flow @ 2cb718888d05cc0a6a801bfc9492b29c5273c1d8 (template/BATON.md). Folds update the source first and ripple here in the same act; do not edit this copy's substance here. -->
 
 # BATON — <project> · <wave / cycle name>
 
