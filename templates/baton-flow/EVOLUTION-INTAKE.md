@@ -1,4 +1,4 @@
-<!-- Versioned copy — source of truth: micaforge/baton-flow @ 1b56a2bd9c8d4c52c3e78ddfb9b2ac58a784d93f (template/EVOLUTION-INTAKE.md). Folds update the source first and ripple here in the same act; do not edit this copy's substance here. -->
+<!-- Versioned copy — source of truth: micaforge/baton-flow @ d9f6e3a83f01c747baca6bf71c5a3db68e21eba7 (template/EVOLUTION-INTAKE.md). Folds update the source first and ripple here in the same act; do not edit this copy's substance here. -->
 
 # EVOLUTION-INTAKE — <project / flow name>
 
