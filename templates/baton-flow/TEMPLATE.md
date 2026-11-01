@@ -1,4 +1,4 @@
-<!-- Versioned copy — source of truth: micaforge/baton-flow @ c788719caf47cbf5b90ce4911e92352c93dd208d (template/TEMPLATE.md). Folds update the source first and ripple here in the same act; do not edit this copy's substance here. -->
+<!-- Versioned copy — source of truth: micaforge/baton-flow @ 66a81a1fc8fff780f4fa6638c76ca9f5de040054 (template/TEMPLATE.md). Folds update the source first and ripple here in the same act; do not edit this copy's substance here. -->
 
 # TEMPLATE — the baton flow (rotating-lead waves)
 
@@ -58,7 +58,11 @@ cannot hold the stick.
 The wave lead runs the wave under the cycle BRIEF
 as contract, files intake entries as they surface
 (EVOLUTION-INTAKE.md), and keeps the cycle record
-current. Milestones are reported to the lead at
+current. The wave lead also keeps the cycle's
+JOURNAL.md (skeleton beside this file): an entry
+on receiving the stick, an entry on returning it,
+and the harvest entry at close — written during
+the run, never after it. Milestones are reported to the lead at
 the deliverable, the gate, the block, or the
 decision — never per keystroke, never silence
 past a missed ETA.
