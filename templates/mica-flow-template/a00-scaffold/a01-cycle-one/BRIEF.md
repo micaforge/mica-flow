@@ -38,7 +38,7 @@ class: design
 4. Durability: everything this cycle produces lives in
    the project folder under `~/workspace`. System-layer
    files are replaceable copies restored by a named
-   floor — never the only copy. /tmp is scratch only.
+   floor — never the only copy. Scratch lives in the cycle's `_run/` (or the project's `hidden_files/`) — /tmp is never used, not even for scratch, full stop.
 
 ## Claims register
 

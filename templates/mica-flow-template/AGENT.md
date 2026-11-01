@@ -67,10 +67,17 @@ Cycle `status:` (cycle.md frontmatter):
   /usr): source of truth stays in the project folder,
   copies are restored by a named floor, never
   hand-restored twice.
-- **Scratch:** /tmp and home-outside-workspace are
-  never durable — observed at best, wiped at worst.
-  Anything needed later moves into the project folder
-  before the session ends.
+- **Scratch:** lives in the flow/project's own
+  workspace — the cycle's `_run/` or the project's
+  `hidden_files/`. **/tmp is not used — not even for
+  scratch, full stop** (sharpened by Curtis,
+  2026-10-31, after a lane's verification scratch
+  landed in /tmp mid-build: the old "scratch only"
+  phrasing read as permission, and it is struck as
+  law). Home-outside-workspace is likewise never a
+  scratch home. Scratch kept in `_run/` is visible,
+  reviewable, and survives; scratch anywhere else
+  is a defect found at the cycle gate (G5).
 - **Named exception — skills:** `~/skills/` sits
   outside `~/workspace` by Curtis's adoption
   (2026-10-28, canary-verified durable). A flow that
