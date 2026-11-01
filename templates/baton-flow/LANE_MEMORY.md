@@ -1,4 +1,4 @@
-<!-- Versioned copy — source of truth: micaforge/baton-flow @ 58f46355e8d52ddcdb7be37f5e50d5206babdda7 (template/LANE_MEMORY.md). Folds update the source first and ripple here in the same act; do not edit this copy's substance here. -->
+<!-- Versioned copy — source of truth: micaforge/baton-flow @ 04d91347ecca6bebef08c11ef5dd8c3131176369 (template/LANE_MEMORY.md). Folds update the source first and ripple here in the same act; do not edit this copy's substance here. -->
 
 <!-- CENTRE-SECTION:BEGIN -->
 <!-- CENTRE v1 is stamped here by the desk at lane birth. Lane: never write, edit, or restate this span. -->
@@ -20,7 +20,6 @@ upkeep:
   - state + pointers only; the story lives in each cycle's JOURNAL, memory points into it, never holds it
   - JUST DID / NEXT updated at milestones
   - STICK section under NEXT, every entry dated with a named counterparty; undated doesn't count
-  - Appends count toward the lane's cap — they are lane prose; the centre span alone is exempt.
   - prune in the act; cap measured minus the centre span
 sot:
   - <charter path> (charter)

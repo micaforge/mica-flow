@@ -1,4 +1,4 @@
-<!-- Versioned copy — source of truth: micaforge/baton-flow @ 2cb718888d05cc0a6a801bfc9492b29c5273c1d8 (template/AGENT-section.md). Folds update the source first and ripple here in the same act; do not edit this copy's substance here. -->
+<!-- Versioned copy — source of truth: micaforge/baton-flow @ 04d91347ecca6bebef08c11ef5dd8c3131176369 (template/AGENT-section.md). Folds update the source first and ripple here in the same act; do not edit this copy's substance here. -->
 
 # TEMPLATE — the AGENT.md baton section
 
@@ -25,6 +25,10 @@ returning for the lead's gate.
   1. <lane / seat> — <its bench: what waves it
      holds best>
   2. <lane / seat> — <…>
+- **Display names:** crew lanes are displayed
+  project first, role second, each with its mark
+  (the crew-naming rule, TEMPLATE.md §Roles) —
+  filled with the project's own names here.
 - **Consults (summoned, not stick-holders):**
   <lane / seat — the expertise it is summoned for>
 - **The pass:** BATON.md in the wave's cycle

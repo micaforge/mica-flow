@@ -1,4 +1,4 @@
-<!-- Versioned copy — source of truth: micaforge/baton-flow @ 58f46355e8d52ddcdb7be37f5e50d5206babdda7 (template/JOURNAL.md). Folds update the source first and ripple here in the same act; do not edit this copy's substance here. -->
+<!-- Versioned copy — source of truth: micaforge/baton-flow @ 04d91347ecca6bebef08c11ef5dd8c3131176369 (template/JOURNAL.md). Folds update the source first and ripple here in the same act; do not edit this copy's substance here. -->
 
 # JOURNAL — <project> · <cycle name>
 
