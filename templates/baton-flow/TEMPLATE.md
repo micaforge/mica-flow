@@ -1,4 +1,4 @@
-<!-- Versioned copy — source of truth: micaforge/baton-flow @ 2cb718888d05cc0a6a801bfc9492b29c5273c1d8 (template/TEMPLATE.md). Folds update the source first and ripple here in the same act; do not edit this copy's substance here. -->
+<!-- Versioned copy — source of truth: micaforge/baton-flow @ 04d91347ecca6bebef08c11ef5dd8c3131176369 (template/TEMPLATE.md). Folds update the source first and ripple here in the same act; do not edit this copy's substance here. -->
 
 # TEMPLATE — the baton flow (rotating-lead waves)
 
@@ -23,6 +23,14 @@ named in its header.
   lead or lead calls in. A consult does not hold
   the stick unless the roster lists it as a crew
   lane.
+
+**Crew naming.** A crew lane's display name
+carries its project first and its role second,
+each with its mark — e.g. 🛰️ Watch Floor ·
+📐 Keeper of Patterns. A role name alone doesn't
+say whose crew a lane is on; project-first naming
+keeps every lane recognizable and attributable
+on sight, in chats, rosters, and indexes alike.
 
 ## Memory at birth
 
