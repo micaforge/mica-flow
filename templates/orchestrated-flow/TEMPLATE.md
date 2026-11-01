@@ -46,7 +46,7 @@ terse summary. She confirms or redirects.
    `_run/` — keep it current.
 5. Durability: everything durable lives in `~/workspace` inside
    the project folder; the system layer is replaceable copies
-   restored by a named floor; /tmp is scratch only.
+   restored by a named floor. Scratch lives in the cycle's `_run/` (or the project's `hidden_files/`) — /tmp is never used, not even for scratch, full stop.
 6. Skills home: a reusable workflow, pattern, script, or tool
    produced here is packaged under `~/skills/` (the named
    durability exception) at the cycle that creates it.
