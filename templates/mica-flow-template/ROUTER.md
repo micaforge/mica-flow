@@ -1,6 +1,6 @@
 # Stage a00: Router
 
-You are the router. Follow `../RUNBOOK.md`. Dispatch cycles in order.
+You are the router. Follow `RUNBOOK.md`. Dispatch cycles in order.
 
 ## Dispatch order
 
