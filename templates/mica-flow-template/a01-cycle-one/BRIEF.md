@@ -9,8 +9,8 @@ class: design
 
 ## Read first
 
-- `../AGENT.md` (stage router)
-- `../../RUNBOOK.md` (lead procedure — the rules that bind you)
+- `../ROUTER.md` (stage router)
+- `../RUNBOOK.md` (lead procedure — the rules that bind you)
 - `cycle.md` (this cycle's goal and gates)
 
 ## Task
