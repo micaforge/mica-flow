@@ -31,7 +31,7 @@ import sys
 from datetime import date
 
 TEMPLATE = os.path.expanduser(
-    "~/workspace/projects/micaforge/repos/micaforge-tools/templates/mica-flow-template")
+    "~/workspace/projects/micaforge/repos/mica-flow/templates/mica-flow-template")
 FLOW_BASE = os.path.expanduser("~/workspace/flows")
 
 
@@ -72,7 +72,7 @@ def main():
     today = date.today().isoformat()
 
     # cycle 1 gets the full templates; cycle 2+ get outlines
-    shutil.move(os.path.join(stage, "x01-cycle-one"),
+    shutil.move(os.path.join(stage, "a01-cycle-one"),
                 os.path.join(stage, cid(1, cycles[0])))
 
     with open(os.path.join(stage, "BRIEF.outline.md")) as f:
