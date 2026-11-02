@@ -1,4 +1,4 @@
-<!-- Versioned copy — source of truth: micaforge/baton-flow @ 04d91347ecca6bebef08c11ef5dd8c3131176369 (template/TEMPLATE.md). Folds update the source first and ripple here in the same act; do not edit this copy's substance here. -->
+<!-- Versioned copy — source of truth: micaforge/baton-flow @ 1c3a1eacf141e16704f6fd2da6e4518cf1701ae6 (template/TEMPLATE.md). Folds update the source first and ripple here in the same act; do not edit this copy's substance here. -->
 
 # TEMPLATE — the baton flow (rotating-lead waves)
 
@@ -106,6 +106,34 @@ in the cycle record, dated, in the act: accept
 (the next pass may issue) · return-with-findings
 (named corrections; same holder or a re-pass, the
 lead's call).
+
+## The evolving roster
+
+The roster is **not fixed at birth**. A project's
+team is derived per cycle: each cycle's brief
+re-derives who the work calls for, and the lead
+confirms the roster before the cycle opens. Seats
+join as the work calls (+1–2 at a time, against a
+named need), and seats phase out as the centre of
+the work moves — **phase-out is a designed act,
+never a fade**: the seat's record is settled, its
+queue is handed over to a named seat, and the
+close is recorded where the roster lives.
+
+**The cap: at most 4 ACTIVE team members per
+flow/phase.** Gate-side and adversary seats
+summoned per gate are visitors, not members, and
+sit outside the cap.
+
+A team asks for seats it does not hold — an
+expert, a full-stack developer, specialists
+(marketing · product testing · UI/UX), or a shared
+agent for a wave or two — through the **seat
+request** block in the cycle's BATON (shape
+below). The team proposes the NEXT cycle's roster
+in the same block; the lead seats it. A seat
+leaving the roster files the **close-out** block
+in its last return (shape below).
 
 ## The rotation rule
 

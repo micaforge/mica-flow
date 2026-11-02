@@ -1,4 +1,4 @@
-<!-- Versioned copy — source of truth: micaforge/baton-flow @ 04d91347ecca6bebef08c11ef5dd8c3131176369 (template/BATON.md). Folds update the source first and ripple here in the same act; do not edit this copy's substance here. -->
+<!-- Versioned copy — source of truth: micaforge/baton-flow @ 1c3a1eacf141e16704f6fd2da6e4518cf1701ae6 (template/BATON.md). Folds update the source first and ripple here in the same act; do not edit this copy's substance here. -->
 
 # BATON — <project> · <wave / cycle name>
 
@@ -25,6 +25,13 @@ the wave's cycle folder. Delete instruction lines
   this wave, concretely>
 - **Intake:** entries filed during the run, or the
   none-line at return.
+- **Seat requests** (for the NEXT cycle — the team
+  proposes, the lead seats):
+  - <role / expertise — the work calling for it ·
+    term (which cycles) · persona source (existing
+    seat / new) — or NONE — declared>
+  - <next cycle's proposed roster, if it changes —
+    or "roster unchanged">
 
 **Receipt:** <holder seat · date · "accepted" — or
 the gap record if the window closed unreceipted>
@@ -39,6 +46,11 @@ the gap record if the window closed unreceipted>
   memory in the act — pointer + the new top item>
 - **Intake filed:** <entry pointers, or NONE —
   declared>
+- **Seat close-out** (only for a seat phasing out
+  at this return — a designed act, never a fade):
+  - <seat — record settled at <pointer> · queue
+    handed to <named seat> · last act <pointer> —
+    or NOT APPLICABLE — declared>
 
 ## The gate (lead)
 
