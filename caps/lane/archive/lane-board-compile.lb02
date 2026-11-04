@@ -1,0 +1,356 @@
+#!/usr/bin/env python3
+"""lane-board compiler — lb02 (D2 spec, no model in the loop).
+
+Globs lane memories, parses the D1 five-section grammar, renders
+~/memory/lanes/_lanes.md (16KB budget). Powers: render, stamp, flag —
+never edit, never normalize.
+
+Modes:
+  (default)   change-check vs .compile-state.json; compile if changed
+  --force      compile regardless
+  --check     conformance table on stdout; non-zero exit if any non-conforming
+  --check F   single-file conformance
+"""
+import glob, json, os, re, sys, time
+from datetime import datetime
+
+HOME = os.path.expanduser("~")
+GLOBS = [
+    f"{HOME}/side-chats/*/LANE_MEMORY.md",
+    f"{HOME}/workspace/flows/*/LANE_MEMORY.md",
+    f"{HOME}/workspace/flows/*/*/LANE_MEMORY.md",
+]
+STATE = f"{HOME}/memory/lanes/.compile-state.json"
+OUT = f"{HOME}/memory/lanes/_lanes.md"
+TAPGLOB = f"{HOME}/workspace/flows/*/taps/*.md"
+BUDGET = 16000
+STALE_DAYS = 7
+MARKER = "<!-- lane-schema: 1 -->"
+
+SECTIONS = ["In progress", "Next", "Blocked", "Taps needed", "Done (recent)"]
+DASH = "\u2014"  # em dash — the only accepted separator
+DATE = r"(\d{4})-(\d{2})-(\d{2})"
+
+def age_str(mtime):
+    d = (time.time() - mtime) / 86400
+    if d < 1:
+        h = d * 24
+        return f"{int(h)}h"
+    return f"{int(d)}d"
+
+def short_mtime(mtime):
+    return datetime.fromtimestamp(mtime).strftime("%Y-%m-%d %H:%M")
+
+def valid_date(y, m, d):
+    return 1 <= m <= 12 and 1 <= d <= 31 and y >= 2020
+
+class Lane:
+    def __init__(self, path):
+        self.path = path
+        self.mtime = os.path.getmtime(path)
+        self.name = None
+        self.items = {s: [] for s in SECTIONS}  # (date, text, extra)
+        self.dropped = 0
+        self.status = "ok"   # ok | gap
+        self.gap_reason = None
+
+    def derive_name(self):
+        with open(self.path) as f:
+            for line in f:
+                line = line.rstrip("\n")
+                if line.startswith("# LANE_MEMORY"):
+                    self.name = re.split(r"[\u2014-]", line, 1)[1].strip() if re.search(r"[\u2014-]", line) else None
+                    break
+        if not self.name:
+            self.name = os.path.basename(os.path.dirname(self.path))
+
+def parse(lane):
+    with open(lane.path) as f:
+        lines = [l.rstrip("\n") for l in f]
+    # schema v3 path (a06 DESIGN, adopted 2026-11-04): YAML frontmatter
+    # is the single marker source — `schema:` in the frontmatter, never
+    # the retired comment marker. Bridge render until item 0002's
+    # compiler lands: NEXT lines -> Next, JUST DID -> Done (recent),
+    # dated by the frontmatter `updated:` field.
+    if lines and lines[0].strip() == "---":
+        fm, body_start = {}, None
+        for i in range(1, len(lines)):
+            if lines[i].strip() == "---":
+                body_start = i + 1
+                break
+            m = re.match(r"^(schema|cap|updated):\s*(.+?)\s*$", lines[i])
+            if m:
+                fm[m.group(1)] = m.group(2)
+        ver = fm.get("schema")
+        if body_start is None or ver is None:
+            lane.status, lane.gap_reason = "gap", "frontmatter without schema field"
+            lane.derive_name()
+            return
+        if ver != "3":
+            lane.status, lane.gap_reason = "gap", f"unknown schema version '{ver}'"
+            lane.derive_name()
+            return
+        fmtext = "\n".join(lines[1:body_start - 1])
+        if not re.search(r"^routes:", fmtext, re.M):
+            lane.status, lane.gap_reason = "gap", "v3: frontmatter missing routes block"
+            lane.derive_name()
+            return
+        try:
+            cap_n = int(fm.get("cap", "300"))
+        except ValueError:
+            cap_n = 300
+        if len(lines) > cap_n:
+            lane.status, lane.gap_reason = "gap", f"v3: over cap ({len(lines)} > {cap_n} lines)"
+            lane.derive_name()
+            return
+        lane.derive_name()
+        secs, cur = {}, None
+        for line in lines[body_start:]:
+            h = re.match(r"^##\s+(.*)$", line)
+            if h:
+                cur = h.group(1).strip()
+                secs.setdefault(cur, [])
+                continue
+            if cur is not None and line.startswith("- "):
+                secs[cur].append(line[2:])
+        def find_sec(prefix):
+            for k, v in secs.items():
+                if k.upper().startswith(prefix):
+                    return v
+            return None
+        nxt, did = find_sec("NEXT"), find_sec("JUST DID")
+        if nxt is None or did is None:
+            miss = "NEXT" if nxt is None else "JUST DID"
+            lane.status, lane.gap_reason = "gap", f"v3: missing section '## {miss}'"
+            return
+        upd = fm.get("updated", "")
+        for t in nxt:
+            lane.items["Next"].append((upd, t.strip(), ""))
+        for t in did:
+            lane.items["Done (recent)"].append((upd, t.strip(), ""))
+        return
+    if not lines or lines[0].strip() != MARKER:
+        lane.status, lane.gap_reason = "gap", "pre-schema — migration pending"
+        lane.derive_name()
+        return
+    # unknown-version marker
+    m = re.match(r"<!--\s*lane-schema:\s*(.+?)\s*-->", lines[0].strip())
+    if m and m.group(1) != "1":
+        lane.status, lane.gap_reason = "gap", f"unknown schema version '{m.group(1)}'"
+        lane.derive_name()
+        return
+    lane.derive_name()
+    # split into the five sections (a present-but-empty section is still present)
+    secs = {s: [] for s in SECTIONS}
+    seen = set()
+    cur = None
+    for line in lines:
+        h = re.match(r"^##\s+(.*)$", line)
+        if h:
+            cur = h.group(1).strip()
+            if cur in SECTIONS:
+                seen.add(cur)
+            continue
+        if cur in SECTIONS and line.startswith("- "):
+            secs[cur].append(line)
+    for s in SECTIONS:
+        if s not in seen:
+            lane.status, lane.gap_reason = "gap", f"missing section '## {s}'"
+            return
+    for s in SECTIONS:
+        for line in secs[s]:
+            item = parse_line(s, line)
+            if item is None:
+                lane.dropped += 1
+            else:
+                lane.items[s].append(item)
+
+def parse_line(section, line):
+    body = line[2:]
+    if section == "Taps needed":
+        m = re.match(r"\[tap ([^\] ]+)\]\s+" + DATE + r"\s*" + DASH + r"\s*(.*)$", body)
+        if not m:
+            return None
+        tid, y, mo, d, text = m.group(1), m.group(2), m.group(3), m.group(4), m.group(5)
+        if not valid_date(int(y), int(mo), int(d)):
+            return None
+        return (f"{y}-{mo}-{d}", text.strip(), f"[tap {tid}]")
+    m = re.match(DATE + r"\s*" + DASH + r"\s*(.*)$", body)
+    if not m:
+        return None
+    y, mo, d, rest = m.group(1), m.group(2), m.group(3), m.group(4)
+    if not valid_date(int(y), int(mo), int(d)):
+        return None
+    date = f"{y}-{mo}-{d}"
+    if section == "Blocked":
+        m2 = re.match(r"^(.*)\s*" + DASH + r"\s*on:\s*(.+?)\s*$", rest)
+        if not m2:
+            return None
+        return (date, m2.group(1).strip(), f"on: {m2.group(2)}")
+    return (date, rest.strip(), "")
+
+def load_taps():
+    taps = {}
+    for f in glob.glob(TAPGLOB):
+        tid, status, decided = None, None, None
+        try:
+            with open(f) as fh:
+                in_fm, n = False, 0
+                for l in fh:
+                    if l.strip() == "---":
+                        n += 1
+                        in_fm = (n == 1)
+                        if n == 2:
+                            break
+                        continue
+                    if in_fm:
+                        m = re.match(r"^(id|status|date|decided):\s*(.+?)\s*$", l)
+                        if m:
+                            if m.group(1) == "id":
+                                tid = m.group(2)
+                            elif m.group(1) == "status":
+                                status = m.group(2)
+                            else:
+                                decided = decided or m.group(2)
+        except OSError:
+            continue
+        if tid:
+            taps[tid] = {"status": status, "date": decided}
+    return taps
+
+def check_conflicts(lane, taps):
+    out = []
+    for date, text, token in lane.items["Taps needed"]:
+        tid = token[5:-1]
+        if tid not in taps:
+            out.append((date, text, token, "\u26a0 CONFLICT: no tap file"))
+        elif taps[tid]["status"] in ("decided", "superseded"):
+            d = taps[tid].get("date")
+            out.append((date, text, token, f"\u26a0 CONFLICT: tap decided{f' {d}' if d else ''} — lane file stale"))
+        else:
+            out.append((date, text, token, None))
+    return out
+
+def compile_board(lanes):
+    taps = load_taps()
+    now_ts = datetime.now().strftime("%Y-%m-%d %H:%M")
+    conforming = [l for l in lanes if l.status == "ok"]
+    staleness = []
+    parts = []
+    stalest = max(lanes, key=lambda l: time.time() - l.mtime, default=None)
+    for l in lanes:
+        if l.status == "ok" and (time.time() - l.mtime) > STALE_DAYS * 86400:
+            staleness.append(l)
+    stale_names = {l.path for l in staleness}
+
+    def mark(path):
+        return " \u26a0 stale" if path in stale_names else ""
+
+    out = []
+    out.append(f"# Lane board — compiled {now_ts}")
+    out.append("")
+    out.append(f"inputs {len(lanes)} lanes ({len(conforming)} conforming) \u00b7 "
+               f"stalest input: {stalest.name if stalest else 'n/a'}, {age_str(stalest.mtime) if stalest else 'n/a'}")
+    out.append("")
+    out.append("> Generated file — view, never edit. Sources are the LANE_MEMORY files.")
+    out.append("")
+
+    sections_out = [("Taps needed", None), ("Blocked", None),
+                    ("In progress", 3), ("Next", 5)]
+    tap_items = []
+    for l in conforming:
+        tap_items += [(l, x) for x in check_conflicts(l, taps)]
+    for sec, cap in sections_out:
+        out.append(f"## {sec}")
+        for l in conforming:
+            items = l.items[sec]
+            if sec == "Taps needed":
+                items = [x for x in tap_items if x[0] is l]
+            shown = items if cap is None else items[:cap]
+            for it in shown:
+                if sec == "Taps needed":
+                    _, (date, text, token, conflict) = it
+                    line = f"- [{l.name}] [{token}] {date} — {text}{mark(l.path)} · src {short_mtime(l.mtime)}"
+                    if conflict:
+                        line += f" {conflict}"
+                    out.append(line)
+                else:
+                    date, text, extra = it
+                    suf = f" — {extra}" if extra else ""
+                    out.append(f"- [{l.name}] {date} — {text}{suf}{mark(l.path)} · src {short_mtime(l.mtime)}")
+            if cap is not None and len(items) > cap:
+                out.append(f"\u2026 +{len(items)-cap} more in {l.path}")
+        out.append("")
+
+    out.append("## Lane index")
+    for l in lanes:
+        if l.status == "gap":
+            out.append(f"- [{l.name}] GAP — {l.gap_reason} ({l.path})")
+            continue
+        dones = [x[0] for x in l.items["Done (recent)"]]
+        last_done = max(dones) if dones else "—"
+        warn = f" \u26a0 {l.dropped} lines dropped" if l.dropped else ""
+        stale = f" \u26a0 stale ({age_str(l.mtime)})" if l.path in stale_names else ""
+        out.append(f"- [{l.name}] mtime {short_mtime(l.mtime)} ({age_str(l.mtime)} ago) "
+                   f"\u00b7 last done {last_done}{warn}{stale}\n  {l.path}")
+    out.append("")
+
+    text = "\n".join(out)
+    if len(text.encode()) > BUDGET:
+        sys.stderr.write(f"lane-board-compile: OVER BUDGET {len(text.encode())}B — check truncation\n")
+    return text
+
+def glob_lanes():
+    seen, paths = set(), []
+    for g in GLOBS:
+        for p in sorted(glob.glob(g)):
+            if p not in seen:
+                seen.add(p)
+                paths.append(p)
+    lanes = []
+    for p in paths:
+        l = Lane(p)
+        parse(l)
+        lanes.append(l)
+    return lanes
+
+def check_table(lanes, single=None):
+    rows = []
+    for l in lanes:
+        if single and l.path != single:
+            continue
+        if l.status == "ok":
+            rows.append(f"OK    {l.name} ({l.path})" + (f" \u26a0 {l.dropped} dropped" if l.dropped else ""))
+        else:
+            rows.append(f"GAP   {l.name} ({l.path}) — {l.gap_reason}")
+    print("\n".join(rows))
+    bad = [l for l in lanes if (not single or l.path == single) and l.status != "ok"]
+    return 1 if bad else 0
+
+def main():
+    args = sys.argv[1:]
+    lanes = glob_lanes()
+    if "--check" in args:
+        i = args.index("--check")
+        single = args[i+1] if i + 1 < len(args) else None
+        sys.exit(check_table(lanes, single))
+    if "--force" not in args and "--check" not in args:
+        # change check
+        mtimes = {l.path: l.mtime for l in lanes}
+        try:
+            with open(STATE) as f:
+                prev = json.load(f)
+        except (OSError, ValueError):
+            prev = {}
+        if prev == mtimes:
+            return 0  # silent: nothing changed
+    text = compile_board(lanes)
+    os.makedirs(os.path.dirname(OUT), exist_ok=True)
+    with open(OUT, "w") as f:
+        f.write(text)
+    with open(STATE, "w") as f:
+        json.dump({l.path: l.mtime for l in lanes}, f)
+    print(f"compiled {len(lanes)} lanes ({len([l for l in lanes if l.status=='ok'])} conforming) -> {OUT} ({len(text.encode())}B)")
+
+if __name__ == "__main__":
+    main()
